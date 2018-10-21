@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func Round(f float64, places int) (float64) {
+func Round(f float64, places int) float64 {
 	shift := math.Pow(10, float64(places))
-	return math.Floor(f*shift+.5) / shift;
+	return math.Floor(f*shift+.5) / shift
 }
 
-func CountDecimalPlaces(input float64) (int) {
+func CountDecimalPlaces(input float64) int {
 	strNumb := conv.ConvertFloatToLongStringNumber(input)
 	splitNumber := strings.Split(strNumb, ".")
 	if len(splitNumber) == 1 {

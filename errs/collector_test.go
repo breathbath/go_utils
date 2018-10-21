@@ -17,13 +17,12 @@ func TestCollectErrors(t *testing.T) {
 	assert.Nil(t, CollectErrors(","))
 }
 
-
 func TestWrapError(t *testing.T) {
 	err := errors.New("Some internal error")
 	outputErr := WrapError(err, ",", "Some external error %d", 1)
 	assert.EqualError(t, outputErr, "Some external error 1,Some internal error")
 
-	assert.EqualError(t, WrapError(nil, ",", "Some external error %d", 1),"Some external error 1", )
+	assert.EqualError(t, WrapError(nil, ",", "Some external error %d", 1), "Some external error 1")
 }
 
 func TestAppendError(t *testing.T) {

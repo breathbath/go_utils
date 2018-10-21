@@ -11,7 +11,7 @@ var reqExample *http.Request
 
 func init() {
 	u, _ := url.Parse("http://ya.ru?someKey=someVal&someNumb=-123")
-	reqExample = &http.Request{URL:u}
+	reqExample = &http.Request{URL: u}
 }
 
 func TestGetRequestValueString(t *testing.T) {

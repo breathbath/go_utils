@@ -46,4 +46,3 @@ func ReadCsvFile(filePath string, lineParser func(int, []string) error, lineSep 
 
 	return
 }
-

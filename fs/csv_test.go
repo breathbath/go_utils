@@ -29,7 +29,7 @@ func TestReadExistingCsvFile(t *testing.T) {
 	err = ReadCsvFile(
 		"testFile.csv",
 		func(i int, strings []string) error {
-			allLines[i]= strings
+			allLines[i] = strings
 			return nil
 		},
 		',',

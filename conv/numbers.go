@@ -17,6 +17,6 @@ func ExtractIntFromString(input string, defaultVal int64) int64 {
 	return intVal
 }
 
-func ConvertFloatToLongStringNumber(input float64) (string) {
+func ConvertFloatToLongStringNumber(input float64) string {
 	return strconv.FormatFloat(input, 'f', -1, 64)
 }

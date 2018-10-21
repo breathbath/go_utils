@@ -60,7 +60,7 @@ func ReadTextFile(filePath string, lineParser func(line string, lineNumber int) 
 		lineNumber++
 		line, err = reader.ReadString('\n')
 		if err != nil {
-			break;
+			break
 		}
 
 		line = strings.TrimSuffix(line, "\n")

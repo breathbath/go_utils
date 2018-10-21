@@ -1,10 +1,10 @@
 package env
 
 import (
+	"fmt"
 	"github.com/breathbath/go_utils/errs"
 	"os"
 	"strconv"
-	"fmt"
 )
 
 func ReadEnv(name, defaultVal string) string {
@@ -62,7 +62,7 @@ func ReadEnvOrError(name string) (string, error) {
 	return val, nil
 }
 
-func ReadEnvOrFail(name string) (string) {
+func ReadEnvOrFail(name string) string {
 	val, err := ReadEnvOrError(name)
 	errs.FailOnError(err)
 	return val

@@ -20,8 +20,8 @@ func init() {
 	}
 
 	exampleMap = map[string]string{
-		"one":   "1",
-		"two":   "2",
+		"one": "1",
+		"two": "2",
 	}
 }
 
@@ -89,11 +89,11 @@ func TestExtractMapValues(t *testing.T) {
 
 func TestJoinMap(t *testing.T) {
 	keysStr, valueStr := JoinMap(exampleMap, ",")
-	possibleVariantsKeys := map[string] bool {
+	possibleVariantsKeys := map[string]bool{
 		"one,two": true,
 		"two,one": true,
 	}
-	possibleVariantsValues := map[string] bool {
+	possibleVariantsValues := map[string]bool{
 		"1,2": true,
 		"2,1": true,
 	}

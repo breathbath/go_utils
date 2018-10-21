@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func CollectErrors(sep string, errs ...error) (error) {
+func CollectErrors(sep string, errs ...error) error {
 	if len(errs) == 0 {
 		return nil
 	}

@@ -1,10 +1,10 @@
 package types
 
 import (
-	"fmt"
-	"strings"
-	"github.com/shopspring/decimal"
 	"database/sql/driver"
+	"fmt"
+	"github.com/shopspring/decimal"
+	"strings"
 )
 
 var ZERO = NewDecimalFromInt(0)
@@ -13,7 +13,7 @@ type Decimal struct {
 	dec decimal.Decimal
 }
 
-func NewDecimalFromString(input string) (Decimal) {
+func NewDecimalFromString(input string) Decimal {
 	dec, e := decimal.NewFromString(input)
 	if e != nil {
 		dec = decimal.New(0, 0)
@@ -22,13 +22,13 @@ func NewDecimalFromString(input string) (Decimal) {
 	return Decimal{dec}
 }
 
-func NewDecimalFromFloat(input float64) (Decimal) {
+func NewDecimalFromFloat(input float64) Decimal {
 	dec := decimal.NewFromFloat(input)
 
 	return Decimal{dec}
 }
 
-func NewDecimalFromInt(input int64) (Decimal) {
+func NewDecimalFromInt(input int64) Decimal {
 	dec := decimal.New(input, 0)
 	return Decimal{dec}
 }
@@ -81,7 +81,7 @@ func (d Decimal) FloorToValue(dec Decimal) Decimal {
 	return Decimal{dec: newDec}
 }
 
-func (d Decimal) Floor() Decimal{
+func (d Decimal) Floor() Decimal {
 	return Decimal{dec: d.dec.Floor()}
 }
 
@@ -101,13 +101,13 @@ func (d *Decimal) Scan(value interface{}) error {
 	}
 	//we force to convert to string because values coming from db produce the following problems:
 	/**
-		decimal.NewFromFloat(0.357).Div(decimal.NewFromFloat(0.001)).Floor() == 356 or in other words floor(0.357 / 0.001) == 356 which is in any normal world 357
+	decimal.NewFromFloat(0.357).Div(decimal.NewFromFloat(0.001)).Floor() == 356 or in other words floor(0.357 / 0.001) == 356 which is in any normal world 357
 
-		but if we do it with strings
-		p1,_ := decimal.NewFromString("0.357")
-		one,_ := decimal.NewFromString("0.001")
-		p1.Div(one).Floor() == 357
-	 */
+	but if we do it with strings
+	p1,_ := decimal.NewFromString("0.357")
+	one,_ := decimal.NewFromString("0.001")
+	p1.Div(one).Floor() == 357
+	*/
 	switch value.(type) {
 	case float32:
 		value = fmt.Sprintf("%.13f", value)

@@ -7,7 +7,6 @@ import (
 
 type MockStruct struct{}
 
-
 func (ms MockStruct) String() string {
 	return "mockStruct"
 }

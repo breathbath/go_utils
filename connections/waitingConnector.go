@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-type Sleeper func (sleepTime time.Duration)
+type Sleeper func(sleepTime time.Duration)
 
-var currentSleeper = func (sleepTime time.Duration) {
+var currentSleeper = func(sleepTime time.Duration) {
 	time.Sleep(sleepTime)
 }
 

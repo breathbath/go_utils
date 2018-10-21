@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const MYSQL_TIME_FORMAT="2006-01-02 15:04:05"
+const MYSQL_TIME_FORMAT = "2006-01-02 15:04:05"
 
 func ConvertFloat(input sql.NullFloat64) float64 {
 	var floatVal float64 = 0

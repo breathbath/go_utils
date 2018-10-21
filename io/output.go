@@ -1,10 +1,10 @@
 package io
 
 import (
-	"strings"
-	"regexp"
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
 )
 
 var maxMessageLength int = 5000
@@ -42,7 +42,7 @@ func CutMessageIfNeeded(message string) string {
 		return message
 	}
 
-	if len (message) > maxMessageLength {
+	if len(message) > maxMessageLength {
 		return message[0:maxMessageLength]
 	}
 

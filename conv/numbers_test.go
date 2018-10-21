@@ -6,13 +6,13 @@ import (
 )
 
 type testCase struct {
-	input string
-	defaultVal int64
+	input          string
+	defaultVal     int64
 	expectedOutput int64
 }
 
 func TestExtractIntFromString(t *testing.T) {
-	testCases := []testCase {
+	testCases := []testCase{
 		{
 			"123",
 			0,

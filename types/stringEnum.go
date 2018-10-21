@@ -40,7 +40,7 @@ func ConvertInterfaceToEnum(mappedValues map[int]string, valueToConvert interfac
 	}
 }
 
-func GenerateEnumQueryPart(mappedValues map[int]string) (string) {
+func GenerateEnumQueryPart(mappedValues map[int]string) string {
 	enumQueryValues := []string{}
 	for _, val := range mappedValues {
 		enumQueryValues = append(enumQueryValues, fmt.Sprintf("'%s'", val))
