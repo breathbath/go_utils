@@ -8,21 +8,21 @@ import (
 )
 
 func TestConvertFloat(t *testing.T) {
-	inputValid := sql.NullFloat64{1, true}
+	inputValid := sql.NullFloat64{Float64: 1, Valid: true}
 	actualOutput := ConvertFloat(inputValid)
 	assert.EqualValues(t, 1, actualOutput)
 
-	inputInValid := sql.NullFloat64{1, false}
+	inputInValid := sql.NullFloat64{Float64: 1, Valid: false}
 	actualOutput = ConvertFloat(inputInValid)
 	assert.EqualValues(t, 0, actualOutput)
 }
 
 func TestConvertInt(t *testing.T) {
-	inputValid := sql.NullInt64{1, true}
+	inputValid := sql.NullInt64{Int64: 1, Valid: true}
 	actualOutput := ConvertInt(inputValid)
 	assert.EqualValues(t, 1, actualOutput)
 
-	inputInValid := sql.NullInt64{1, false}
+	inputInValid := sql.NullInt64{Int64: 1, Valid: false}
 	actualOutput = ConvertInt(inputInValid)
 	assert.EqualValues(t, 0, actualOutput)
 }
@@ -39,21 +39,21 @@ func TestFormatTimePointer(t *testing.T) {
 }
 
 func TestConvertBool(t *testing.T) {
-	inputValid := sql.NullBool{true, true}
+	inputValid := sql.NullBool{Bool: true, Valid: true}
 	actualOutput := ConvertBool(inputValid)
 	assert.True(t, *actualOutput)
 
-	inputInValid := sql.NullBool{true, false}
+	inputInValid := sql.NullBool{Bool: true, Valid: false}
 	actualOutput = ConvertBool(inputInValid)
 	assert.Nil(t, actualOutput)
 }
 
 func TestConvertString(t *testing.T) {
-	inputValid := sql.NullString{"one", true}
+	inputValid := sql.NullString{String: "one", Valid: true}
 	actualOutput := ConvertString(inputValid)
 	assert.EqualValues(t, "one", actualOutput)
 
-	inputInValid := sql.NullString{"one", false}
+	inputInValid := sql.NullString{String: "one", Valid: false}
 	actualOutput = ConvertString(inputInValid)
 	assert.EqualValues(t, "", actualOutput)
 }
