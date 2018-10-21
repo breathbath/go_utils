@@ -27,7 +27,7 @@ func CollectErrors(sep string, errs ...error) (error) {
 	return errors.New(errorWord)
 }
 
-func WrapError(err error, msg, errSeparator string, args ...interface{}) error {
+func WrapError(err error, errSeparator, msg string, args ...interface{}) error {
 	cont := NewErrorContainer()
 	cont.AddError(fmt.Errorf(msg, args...))
 	cont.AddError(err)

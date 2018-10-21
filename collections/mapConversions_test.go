@@ -3,7 +3,6 @@ package collections
 import (
 	testing2 "github.com/breathbath/go_utils/testing"
 	"github.com/stretchr/testify/assert"
-	"sort"
 	"sync"
 	"testing"
 )
@@ -112,12 +111,12 @@ func TestJoinMap(t *testing.T) {
 
 func TestMapToStruct(t *testing.T) {
 	actualKeys, actualValues := MapToStruct(exampleMap)
-	sort.Strings(actualKeys)
-	sort.Strings(actualValues)
+	//sort.Strings(actualKeys)
+	//sort.Strings(actualValues)
 
 	expectedKeys := []string{"one", "two"}
 	expectedValues := []string{"1", "2"}
 
-	assert.Equal(t, expectedKeys, actualKeys)
-	assert.Equal(t, expectedValues, actualValues)
+	assert.ElementsMatch(t, expectedKeys, actualKeys)
+	assert.ElementsMatch(t, expectedValues, actualValues)
 }

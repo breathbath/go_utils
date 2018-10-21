@@ -21,7 +21,7 @@ func GetRequestValueInt(req *http.Request, key string, defaultValue int64) int64
 	}
 
 	valInt, err := strconv.Atoi(val[0])
-	if err == nil && valInt > 0 {
+	if err == nil {
 		return int64(valInt)
 	}
 
