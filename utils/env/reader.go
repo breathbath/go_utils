@@ -2,7 +2,7 @@ package env
 
 import (
 	"fmt"
-	"github.com/breathbath/go_utils/errs"
+	"github.com/breathbath/go_utils/utils/errs"
 	"os"
 	"strconv"
 )

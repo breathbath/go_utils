@@ -1,7 +1,7 @@
 package collections
 
 import (
-	testing2 "github.com/breathbath/go_utils/testing"
+	testing2 "github.com/breathbath/go_utils/utils/testing"
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"

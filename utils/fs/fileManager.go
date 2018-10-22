@@ -2,6 +2,7 @@ package fs
 
 import (
 	"bufio"
+	"github.com/breathbath/go_utils/utils/errs"
 	"io"
 	"io/ioutil"
 	"os"
@@ -18,6 +19,11 @@ func GetCurrentPath() (string, error) {
 
 func ReadFilesInDirectory(dirPath string) ([]os.FileInfo, error) {
 	return ioutil.ReadDir(dirPath)
+}
+
+func FileExistsOrFail(filePath string) {
+	_, err := os.Stat(filePath)
+	errs.FailOnError(err)
 }
 
 func FileExists(filePath string) bool {
@@ -40,6 +46,10 @@ func RmFile(filePath string) bool {
 
 	err := os.Remove(filePath)
 	return err == nil
+}
+
+func JoinPath(parts ...string) string {
+	return strings.Join(parts, DS)
 }
 
 func RTrimDirPath(inputDir string) string {

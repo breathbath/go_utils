@@ -1,7 +1,7 @@
 package math
 
 import (
-	"github.com/breathbath/go_utils/conv"
+	"github.com/breathbath/go_utils/utils/conv"
 	"math"
 	"math/rand"
 	"strings"

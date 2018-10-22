@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/breathbath/go_utils/env"
+	"github.com/breathbath/go_utils/utils/env"
 	"net/url"
 	"strings"
 )
