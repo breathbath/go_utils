@@ -24,3 +24,7 @@ after_success:
 
 notifications:
   email: false
+
+cache:
+  directories:
+  - $HOME/gopath/src/github.com/$TRAVIS_REPO_SLUG
