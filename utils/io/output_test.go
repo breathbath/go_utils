@@ -16,6 +16,7 @@ line`
 )
 
 func TestOutputSingleLine(t *testing.T) {
+	SetMaxMessageLength(100)
 	output := testing2.CaptureOutput(func() {
 		OutputSingleLine("Some msg %s", "text")
 	})
@@ -37,6 +38,7 @@ func TestOutputSingleLine(t *testing.T) {
 }
 
 func TestOutputSingleLineWithTopic(t *testing.T) {
+	SetMaxMessageLength(100)
 	output := testing2.CaptureOutput(func() {
 		OutputSingleLineWithTopic("Some topic", "Some msg %s", "text")
 	})

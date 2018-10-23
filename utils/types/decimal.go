@@ -101,7 +101,8 @@ func (d *Decimal) Scan(value interface{}) error {
 	}
 	//we force to convert to string because values coming from db produce the following problems:
 	/**
-	decimal.NewFromFloat(0.357).Div(decimal.NewFromFloat(0.001)).Floor() == 356 or in other words floor(0.357 / 0.001) == 356 which is in any normal world 357
+	decimal.NewFromFloat(0.357).Div(decimal.NewFromFloat(0.001)).Floor() == 356 or
+	in other words floor(0.357 / 0.001) == 356 which should be 357
 
 	but if we do it with strings
 	p1,_ := decimal.NewFromString("0.357")
