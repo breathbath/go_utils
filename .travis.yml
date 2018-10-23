@@ -12,8 +12,8 @@ env:
 git:
   depth: 1
 
-before_install:
-  - go get -t -v ./...
+#before_install:
+#  - go get -t -v ./...
 
 script:
  - go vet ./...
@@ -25,6 +25,6 @@ after_success:
 notifications:
   email: false
 
-cache:
-  directories:
-  - $HOME/gopath/src/github.com/$TRAVIS_REPO_SLUG
+#cache:
+#  directories:
+#  - $HOME/gopath/src/github.com/$TRAVIS_REPO_SLUG
