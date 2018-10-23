@@ -1,6 +1,7 @@
 package math
 
 import (
+	"fmt"
 	"github.com/breathbath/go_utils/utils/conv"
 	"math"
 	"math/rand"
@@ -8,8 +9,8 @@ import (
 	"time"
 )
 
-func Round(f float64, places int) float64 {
-	shift := math.Pow(10, float64(places))
+func Round(f float64, places float64) float64 {
+	shift := math.Pow(10, places)
 	return math.Floor(f*shift+.5) / shift
 }
 
@@ -27,4 +28,14 @@ func RandInt(limit int64) int64 {
 	rand.Seed(time.Now().UnixNano())
 
 	return int64(rand.Intn(limitInt))
+}
+
+func CountDigits(input int64) (int64) {
+	strNumb := fmt.Sprintf("%d", input)
+	strLen := int64(len(strNumb))
+	if input < 0 {
+		return strLen - 1
+	}
+
+	return strLen
 }

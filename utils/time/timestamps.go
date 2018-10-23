@@ -7,5 +7,5 @@ func GetUnixTimestampMilliseconds() int64 {
 }
 
 func GetTimeFromTimestampMilliseconds(millisecondsTimeStamp int64) time.Time {
-	return time.Unix(millisecondsTimeStamp/1000, 0)
+	return time.Unix(millisecondsTimeStamp/1000, 0).UTC()
 }
