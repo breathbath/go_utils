@@ -3,6 +3,7 @@ package connections
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -22,6 +23,18 @@ func WaitForConnection(
 	resourceCallback func() (interface{}, error),
 	outputFunc func(msg string, err error),
 ) (interface{}, error) {
+	if outputFunc == nil {
+		outputFunc = func(msg string, err error) {
+			if msg != "" {
+				log.Println(msg)
+			}
+
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}
+
 	for i := 0; i < int(maxConnAttempts); i++ {
 		res, err := resourceCallback()
 

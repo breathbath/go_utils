@@ -2,6 +2,7 @@ package connections
 
 import (
 	"errors"
+	testing2 "github.com/breathbath/go_utils/utils/testing"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -87,4 +88,19 @@ func TestConnectionFailure(t *testing.T) {
 
 	assert.EqualError(t, err, "Was not able to connect to SomeConn")
 	assert.Nil(t, res)
+}
+
+func TestNoOutputFuncProvided(t *testing.T) {
+	SetSleeper(mockedSleeper)
+	connector := func() (interface{}, error) {
+		return 1, errors.New("Some error")
+	}
+
+	output := testing2.CaptureOutput(func() {
+		WaitForConnection(2, "RemoteHost", connector, nil)
+	})
+
+	assert.Contains(t, output, "Some error")
+	assert.Contains(t, output, "Trying to reconnect to RemoteHost in 1 s")
+	assert.Contains(t, output, "Trying to reconnect to RemoteHost in 2 s")
 }
