@@ -67,7 +67,7 @@ func TestJsonConversions(t *testing.T) {
 	assertEqualDecimals(t, "1.2", decimalVal)
 }
 
-func TestScan(t *testing.T) {
+func TestDecimalScan(t *testing.T) {
 	decimalVal := Decimal{}
 
 	err := decimalVal.Scan(nil)
