@@ -12,7 +12,7 @@ func TestJsonConversion(t *testing.T) {
 	assert.NoError(t, err)
 
 	nullTime := NullTime{
-		NullTime: mysql.NullTime{expectedTime, false},
+		NullTime: mysql.NullTime{Time: expectedTime, Valid: false},
 	}
 
 	jsonTime, err := nullTime.MarshalJSON()
@@ -20,7 +20,7 @@ func TestJsonConversion(t *testing.T) {
 	assert.Equal(t, "null", string(jsonTime))
 
 	nullTime = NullTime{
-		NullTime: mysql.NullTime{expectedTime, true},
+		NullTime: mysql.NullTime{Time: expectedTime, Valid: true},
 	}
 	jsonTime, err = nullTime.MarshalJSON()
 	assert.NoError(t, err)
