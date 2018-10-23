@@ -22,12 +22,12 @@ func ConvertStringToEnum(mappedValues map[int]string, valueToConvert, enumName s
 		}
 	}
 
-	return 0, fmt.Errorf("Unknown value %s for enum %s", valueToConvert, enumName)
+	return 0, fmt.Errorf("Unknown value '%s' for enum '%s'", valueToConvert, enumName)
 }
 
 func ConvertInterfaceToEnum(mappedValues map[int]string, valueToConvert interface{}, enumName string) (int, error) {
 	if valueToConvert == nil {
-		return 0, fmt.Errorf("Empty value to convert for enum %s", enumName)
+		return 0, fmt.Errorf("Empty value to convert for enum '%s'", enumName)
 	}
 	switch valueToConvert.(type) {
 	case string:
@@ -36,7 +36,7 @@ func ConvertInterfaceToEnum(mappedValues map[int]string, valueToConvert interfac
 		valueToConvertString := string(valueToConvert.([]byte))
 		return ConvertStringToEnum(mappedValues, valueToConvertString, enumName)
 	default:
-		return 0, fmt.Errorf("Non-string value %v for enum %s", valueToConvert, enumName)
+		return 0, fmt.Errorf("Non-string value '%v' for enum '%s'", valueToConvert, enumName)
 	}
 }
 
