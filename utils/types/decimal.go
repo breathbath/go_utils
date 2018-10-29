@@ -193,6 +193,20 @@ func (d Decimal) GreaterOrEqualInt(input int64) bool {
 	return d.GreaterOrEqual(dec)
 }
 
+func (d Decimal) Round(places int64) Decimal {
+	if places < 0 {
+		return d
+	}
+
+	roundResult := d.dec.Round(int32(places))
+	return Decimal{dec: roundResult}
+}
+
+func (d Decimal) ToPercent(places int64) Decimal {
+	percent := d.Mul(NewDecimalFromInt(100))
+	return percent.Round(places)
+}
+
 func (d Decimal) ToFloat() float64 {
 	fl, _ := d.dec.Float64()
 	return fl

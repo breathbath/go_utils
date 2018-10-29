@@ -124,6 +124,52 @@ func TestComparing(t *testing.T) {
 	assert.True(t, decimalOne.GreaterOrEqualInt(3))
 }
 
+type RoundingTestSet struct {
+	inputNumber    string
+	places         int64
+	expectedResult string
+}
+
+func TestToPercentConversion(t *testing.T) {
+	testingSets := []RoundingTestSet {
+		{inputNumber: "0.123", places: 2, expectedResult: "12.3"},
+		{inputNumber: "1.123", places: 2, expectedResult: "112.3"},
+		{inputNumber: "0.123456", places: -1, expectedResult: "12.3456"},
+		{inputNumber: "0.123456", places: 2, expectedResult: "12.35"},
+		{inputNumber: "0.123333", places: 2, expectedResult: "12.33"},
+		{inputNumber: "1", places: 2, expectedResult: "100"},
+		{inputNumber: "10", places: 2, expectedResult: "1000"},
+		{inputNumber: "-0.991", places: 2, expectedResult: "-99.1"},
+		{inputNumber: "-0.9999", places: 0, expectedResult: "-100"},
+	}
+
+	for _, testingSet := range testingSets {
+		decimalVal := NewDecimalFromString(testingSet.inputNumber)
+		convertedDecimalVal := decimalVal.ToPercent(testingSet.places)
+		assertEqualDecimals(t, testingSet.expectedResult, convertedDecimalVal)
+	}
+}
+
+func TestRounding(t *testing.T) {
+	testingSets := []RoundingTestSet {
+		{inputNumber: "0.123", places: 2, expectedResult: "0.12"},
+		{inputNumber: "1.125", places: 2, expectedResult: "1.13"},
+		{inputNumber: "0.123456", places: -1, expectedResult: "0.123456"},
+		{inputNumber: "1.1", places: 0, expectedResult: "1"},
+		{inputNumber: "1.9", places: 0, expectedResult: "2"},
+		{inputNumber: "1", places: 2, expectedResult: "1"},
+		{inputNumber: "0.12", places: 2, expectedResult: "0.12"},
+		{inputNumber: "-0.991", places: 2, expectedResult: "-0.99"},
+		{inputNumber: "-0.9999", places: 3, expectedResult: "-1"},
+	}
+
+	for _, testingSet := range testingSets {
+		decimalVal := NewDecimalFromString(testingSet.inputNumber)
+		convertedDecimalVal := decimalVal.Round(testingSet.places)
+		assertEqualDecimals(t, testingSet.expectedResult, convertedDecimalVal)
+	}
+}
+
 func assertEqualDecimals(t *testing.T, expectedDecimalStr string, actualDecimal Decimal) {
 	coreDec, err := coreDecimal.NewFromString(expectedDecimalStr)
 	assert.NoError(t, err)
