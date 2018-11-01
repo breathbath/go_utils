@@ -45,3 +45,14 @@ func (nd NullDecimal) Value() (driver.Value, error) {
 	}
 	return nd.DecimalValue, nil
 }
+
+func (nd *NullDecimal) UnmarshalJSON(input []byte) error {
+	d := Decimal{}
+	err := d.UnmarshalJSON(input)
+
+	nd.DecimalValue = d
+	//will be not valid for all null values, all invalid decimal values should be considered as errors
+	nd.Valid = string(input) != "null"
+
+	return err
+}

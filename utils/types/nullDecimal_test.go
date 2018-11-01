@@ -23,6 +23,27 @@ func TestJsonMarshal(t *testing.T) {
 	assert.Equal(t, `2.12`, string(jsonDecimal))
 }
 
+func TestJsonUnMarshal(t *testing.T) {
+	jsonDecimal := `2.34`
+	nd := NullDecimal{}
+
+	err := nd.UnmarshalJSON([]byte(jsonDecimal))
+	assert.NoError(t, err)
+
+	expectedDecimal := NewDecimalFromString("2.34")
+
+	assert.True(t, nd.Valid)
+	assert.Equal(t, expectedDecimal, nd.DecimalValue)
+
+	err = nd.UnmarshalJSON([]byte("invalid decimal"))
+	assert.EqualError(t, err, "Error decoding string 'invalid decimal': can't convert invalid decimal to decimal: exponent is not numeric")
+
+	err = nd.UnmarshalJSON([]byte(`"22"`))
+	expectedDecimal = NewDecimalFromString("22")
+	assert.True(t, nd.Valid)
+	assert.Equal(t, expectedDecimal, nd.DecimalValue)
+}
+
 func TestNullDecimalScan(t *testing.T) {
 	someNullDecimal := NullDecimal{}
 	invalidValues := []interface{}{
