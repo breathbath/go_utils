@@ -28,8 +28,8 @@ func TestMockUserFromJsonConversion(t *testing.T) {
 			expectedUser: MockUser{
 				BirthDay: NullTime{
 					NullTime: mysql.NullTime{
-						time.Date(2001, 1, 1, 11, 0, 0, 0, time.UTC),
-						true,
+						Time:  time.Date(2001, 1, 1, 11, 0, 0, 0, time.UTC),
+						Valid: true,
 					},
 				},
 				Age: NullDecimal{
@@ -45,8 +45,8 @@ func TestMockUserFromJsonConversion(t *testing.T) {
 			expectedUser: MockUser{
 				BirthDay: NullTime{
 					NullTime: mysql.NullTime{
-						time.Time{},
-						false,
+						Time:  time.Time{},
+						Valid: false,
 					},
 				},
 				Age: NullDecimal{
@@ -62,8 +62,8 @@ func TestMockUserFromJsonConversion(t *testing.T) {
 			expectedUser: MockUser{
 				BirthDay: NullTime{
 					NullTime: mysql.NullTime{
-						time.Time{},
-						false,
+						Time:  time.Time{},
+						Valid: false,
 					},
 				},
 				Age: NullDecimal{
@@ -74,7 +74,6 @@ func TestMockUserFromJsonConversion(t *testing.T) {
 			},
 		},
 	}
-
 
 	for _, testItem := range testItems {
 		var actualUser MockUser
