@@ -135,7 +135,7 @@ func (jc JsonClient) ScanToTarget(context RequestContext, target interface{}) er
 func (jc JsonClient) ScanToTargetRecoveringOnProxyFailure(context RequestContext, target interface{}) error {
 	err := jc.ScanToTarget(context, target)
 	if err != nil {
-		fmt.Printf("Request failure: %v. Will try to repeat without proxy", err)
+		fmt.Printf("Request failure: %v. Will try to repeat without proxy\n", err)
 		if context.ProxyUrl != "" {
 			context.ProxyUrl = ""
 			err = jc.ScanToTarget(context, target)
