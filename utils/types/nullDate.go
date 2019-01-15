@@ -1,29 +1,24 @@
 package types
 
 import (
-	"encoding/json"
-	"github.com/go-sql-driver/mysql"
 	"time"
 )
 
-type NullTime struct {
-	mysql.NullTime
+type NullDate struct {
+	NullTime
 }
 
-func (nt NullTime) MarshalJSON() ([]byte, error) {
-	if !nt.Valid {
-		return json.Marshal(nil)
-	}
-	return json.Marshal(nt.Time)
-}
-
-func (nt *NullTime) UnmarshalJSON(input []byte) error {
+func (nd *NullDate) UnmarshalJSON(input []byte) error {
 	t := time.Time{}
-	err := t.UnmarshalJSON(input)
+	if string(input) == "null" {
+		return nil
+	}
 
-	nt.Time = t
-	//will be not valid for all null dates, all invalid date values should be considered as errors
-	nt.Valid = string(input) != "null"
+	var err error
+	t, err = time.Parse(`"2006-01-02"`, string(input))
+
+	nd.Time = t
+	nd.Valid = string(input) != "null"
 
 	return err
 }
