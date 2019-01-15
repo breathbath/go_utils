@@ -1,11 +1,23 @@
 package types
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
 type NullDate struct {
 	NullTime
+}
+
+func (nd NullDate) MarshalJSON() ([]byte, error) {
+	if !nd.Valid {
+		return json.Marshal(nil)
+	}
+
+	outputStr := fmt.Sprintf(`"%s"`, nd.Time.Format("2006-01-02"))
+
+	return []byte(outputStr), nil
 }
 
 func (nd *NullDate) UnmarshalJSON(input []byte) error {
