@@ -45,4 +45,12 @@ func TestFromJsonConversion(t *testing.T) {
 
 	err = nullTime.UnmarshalJSON([]byte(`"2001-01-01 11:00:00"`))
 	assert.EqualError(t, err, "parsing time \"\"2001-01-01 11:00:00\"\" as \"\"2006-01-02T15:04:05Z07:00\"\": cannot parse \" 11:00:00\"\" as \"T\"")
+
+	err = nullTime.UnmarshalJSON([]byte(`""`))
+	assert.NoError(t, err)
+	assert.False(t, nullTime.Valid)
+
+	err = nullTime.UnmarshalJSON([]byte("null"))
+	assert.NoError(t, err)
+	assert.False(t, nullTime.Valid)
 }

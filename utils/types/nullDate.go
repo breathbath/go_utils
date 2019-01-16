@@ -22,7 +22,8 @@ func (nd NullDate) MarshalJSON() ([]byte, error) {
 
 func (nd *NullDate) UnmarshalJSON(input []byte) error {
 	t := time.Time{}
-	if string(input) == "null" {
+	if string(input) == "null" || string(input) == `""` {
+		nd.Valid = false
 		return nil
 	}
 

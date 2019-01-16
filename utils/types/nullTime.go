@@ -19,6 +19,11 @@ func (nt NullTime) MarshalJSON() ([]byte, error) {
 
 func (nt *NullTime) UnmarshalJSON(input []byte) error {
 	t := time.Time{}
+	if string(input) == "null" || string(input) == `""` {
+		nt.Valid = false
+		return nil
+	}
+
 	err := t.UnmarshalJSON(input)
 
 	nt.Time = t
