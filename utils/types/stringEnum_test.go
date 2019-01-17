@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -12,6 +13,34 @@ func TestConvertEnumToString(t *testing.T) {
 	assert.Equal(t, "Miss", MS.String())
 
 	assert.Equal(t, "", ConvertEnumToString(SalutationMap, -1))
+}
+
+func TestConvertStructWithEnumToJson(t *testing.T) {
+	person := Person{
+		Salutation: MR,
+		Name: "Dow Jones",
+	}
+
+	jsonPerson, err := json.Marshal(person)
+	assert.NoError(t, err)
+	expectedStringValue := `{"salutation":"Mister","name":"Dow Jones"}`
+	actualStringValue := string(jsonPerson)
+
+	assert.Equal(t, expectedStringValue, actualStringValue)
+}
+
+func TestConvertStructWithEnumFromJson(t *testing.T) {
+	actualPerson := Person{}
+
+	err := json.Unmarshal([]byte(`{"salutation":"Mister","name":"Dow Jones"}`), &actualPerson)
+	assert.NoError(t, err)
+
+	expectedPerson := Person{
+		Salutation: MR,
+		Name: "Dow Jones",
+	}
+
+	assert.Equal(t, expectedPerson, actualPerson)
 }
 
 func TestConvertStringToEnum(t *testing.T) {

@@ -16,6 +16,7 @@ func ConvertEnumToString(mappedValues map[int]string, valueToConvert int) string
 }
 
 func ConvertStringToEnum(mappedValues map[int]string, valueToConvert, enumName string) (int, error) {
+	valueToConvert = strings.Trim(valueToConvert, `"`)
 	for enumValue, mappedValue := range mappedValues {
 		if mappedValue == valueToConvert {
 			return enumValue, nil
