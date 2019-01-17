@@ -70,3 +70,10 @@ func TestStringSetValueConversion(t *testing.T) {
 
 	assert.Equal(t, "one,two", val)
 }
+
+func TestStringSetSearching(t *testing.T) {
+	ss := &StringSet{"one", "two"}
+	assert.False(t, ss.Contains("three"))
+	assert.True(t, ss.Contains("one"))
+	assert.True(t, ss.Contains("two"))
+}

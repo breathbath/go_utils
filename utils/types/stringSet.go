@@ -3,8 +3,8 @@ package types
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"strings"
 	"fmt"
+	"strings"
 )
 
 type StringSet [] string
@@ -19,6 +19,15 @@ func (vs *StringSet) MarshalJSON() ([]byte, error) {
 
 func (vs StringSet) ToStrings() (result []string) {
 	return []string(vs)
+}
+
+func (vs StringSet) Contains(needle string) bool {
+	for _, item := range vs {
+		if item == needle {
+			return true
+		}
+	}
+	return false
 }
 
 func (vs StringSet) String() string {
