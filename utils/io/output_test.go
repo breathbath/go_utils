@@ -1,6 +1,7 @@
 package io
 
 import (
+	"errors"
 	testing2 "github.com/breathbath/go_utils/utils/testing"
 	"testing"
 )
@@ -40,4 +41,33 @@ func TestOutputSingleLineWithTopic(t *testing.T) {
 		OutputSingleLineWithTopic("Some topic", "Some msg %s", "text")
 	})
 	testing2.AssertLogText(t,"[Some topic] Some msg text", output)
+}
+
+func TestOutputError(t *testing.T) {
+	output := testing2.CaptureOutput(func() {
+		err := errors.New("Some error")
+		OutputError(err, "Some topic", "Some msg %s", "text")
+	})
+	testing2.AssertLogText(t,"[ERROR] Some error, Some msg text [Some topic]", output)
+}
+
+func TestOutputWarning(t *testing.T) {
+	output := testing2.CaptureOutput(func() {
+		OutputWarning("Topic", "Number %d", 1)
+	})
+	testing2.AssertLogText(t,"[WARNING] Number 1 [Topic]", output)
+}
+
+func TestOutputInfo(t *testing.T) {
+	output := testing2.CaptureOutput(func() {
+		OutputInfo("Info_top", "Many params %d, %s", 1, "lala")
+	})
+	testing2.AssertLogText(t,"[INFO] Many params 1, lala [Info_top]", output)
+}
+
+func TestOutputMsgType(t *testing.T) {
+	output := testing2.CaptureOutput(func() {
+		OutputMessageType("Type", "Topic", "Msg")
+	})
+	testing2.AssertLogText(t,"[Type] Msg [Topic]", output)
 }
