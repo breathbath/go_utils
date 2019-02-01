@@ -29,7 +29,7 @@ OutputWarning shows warning as
 [WARNING] {message} [{topic}] e.g.
 [WARNING] Cannot send email [order_123]
  */
-func OutputWarning(err error, topic, msg string, args ...interface{}) {
+func OutputWarning(topic, msg string, args ...interface{}) {
 	OutputMessageType("WARNING", topic, msg, args...)
 }
 
