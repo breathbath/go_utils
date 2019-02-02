@@ -17,7 +17,7 @@ func NewDbGateway(conn *sqlx.DB) *DbGateway {
 	return &DbGateway{conn: conn}
 }
 
-//QueryWithCallback eecutes query and gives each row to callback func
+//QueryWithCallback executes query and gives each row to callback func
 func (dg *DbGateway) QueryWithCallback(
 	resultCallback func(row map[string]interface{}, errCallback error),
 	sql string,
@@ -94,8 +94,8 @@ func (dg *DbGateway) ScanScalarByQuery(target interface{}, sql string, args ...i
 }
 
 //ScanStructByQuery useful to get a single struct
-func (dg *DbGateway) ScanStructByQuery(q string, args []interface{}, obj interface{}) (bool, error) {
-	err := dg.conn.Get(obj, q, args...)
+func (dg *DbGateway) ScanStructByQuery(target interface{}, q string, args ...interface{}) (bool, error) {
+	err := dg.conn.Get(target, q, args...)
 
 	if err == baseSql.ErrNoRows {
 		return false, nil
@@ -114,7 +114,7 @@ func (dg *DbGateway) packError(err error, query string, args interface{}) error 
 	}
 
 	return fmt.Errorf(
-		"Query %s with args %v has failed: %v",
+		"Query '%s' with args %v has failed: %v",
 		io.RemoveLineBreaks(query),
 		args,
 		err,

@@ -13,6 +13,8 @@ var currentSleeper = func(sleepTime time.Duration) {
 	time.Sleep(sleepTime)
 }
 
+var WaitingConnectorIterativeDelayDuration = time.Second
+
 func SetSleeper(sleeper Sleeper) {
 	currentSleeper = sleeper
 }
@@ -46,7 +48,7 @@ func WaitForConnection(
 
 		outputFunc("", errorToSend)
 
-		sleepTime := time.Second * time.Duration(i+1)
+		sleepTime := WaitingConnectorIterativeDelayDuration * time.Duration(i+1)
 		outputFunc(fmt.Sprintf("Trying to reconnect to %s in %.0f s\n", resourceName, sleepTime.Seconds()), nil)
 		currentSleeper(sleepTime)
 	}

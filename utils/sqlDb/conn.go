@@ -17,19 +17,7 @@ var LoggingFunc = func(msg string, err error) {
 
 //NewDb creates db connection with multiple retries in case if mysql is not immediately available
 func NewDb(dsnConnString, sqlDriverName string, maxConnAttempts int) (*sqlx.DB, error) {
-	resource, err := connections.WaitForConnection(
-		maxConnAttempts,
-		sqlDriverName,
-		func() (interface{}, error) {
-			return sqlx.Open(sqlDriverName, dsnConnString)
-		},
-		LoggingFunc,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return resource.(*sqlx.DB), nil
+	return sqlx.Open(sqlDriverName, dsnConnString)
 }
 
 //ValidateConn pings the opened connection and fails if conn details are wrong
