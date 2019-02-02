@@ -32,5 +32,5 @@ func TestOpenConnection(t *testing.T) {
 	})
 
 	assert.Equal(t, "conn_str", fakeDb.ConnStr)
-	testing2.AssertLogText(t,"[ERROR] sql_db connection error: First err,  ", output)
+	testing2.AssertLogText(t,"[ERROR] sql_db connection error: First err[INFO] Trying to reconnect to sql_db in 0 s", output)
 }

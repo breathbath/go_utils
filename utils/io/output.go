@@ -19,9 +19,14 @@ we also cut too long messages (more than maxMessageLength chars) because of the 
  */
 func OutputError(err error, topic, msg string, args ...interface{}) {
 	msgToOutput := fmt.Sprintf(msg, args...)
-	msgToOutput = fmt.Sprintf("%v, %s", err, msgToOutput)
+	finalOutput := ""
+	if msgToOutput == "" {
+		finalOutput = err.Error()
+	} else {
+		finalOutput = fmt.Sprintf("%v, %s", err, msgToOutput)
+	}
 
-	OutputMessageType("ERROR", topic, msgToOutput)
+	OutputMessageType("ERROR", topic, finalOutput)
 }
 
 /*
@@ -54,6 +59,10 @@ func OutputMessageType(messageType, topic, msg string, args ...interface{}) {
 }
 
 func GenerateMessage(eventType, message, topic string) string {
+	if topic == "" {
+		return fmt.Sprintf("[%s] %s", eventType, message)
+	}
+
 	return fmt.Sprintf("[%s] %s [%s]", eventType, message, topic)
 }
 

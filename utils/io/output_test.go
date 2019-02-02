@@ -71,3 +71,10 @@ func TestOutputMsgType(t *testing.T) {
 	})
 	testing2.AssertLogText(t,"[Type] Msg [Topic]", output)
 }
+
+func TestOutputMsgWithoutTopic(t *testing.T) {
+	output := testing2.CaptureOutput(func() {
+		OutputMessageType("Type", "", "Msg")
+	})
+	testing2.AssertLogText(t,"[Type] Msg", output)
+}
