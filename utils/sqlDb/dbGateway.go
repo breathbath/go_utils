@@ -93,6 +93,13 @@ func (dg *DbGateway) ScanScalarByQuery(target interface{}, sql string, args ...i
 	return true, nil
 }
 
+func (dg *DbGateway) FindOneStructById(target interface{}, tableName string, id int64) (bool, error) {
+	tableName = dg.escapeTableName(tableName)
+	q := fmt.Sprintf("Select %s.* from %s WHERE %s.id=? LIMIT 1", tableName, tableName, tableName)
+
+	return dg.ScanStructByQuery(target, q, id)
+}
+
 //ScanStructByQuery useful to get a single struct
 func (dg *DbGateway) ScanStructByQuery(target interface{}, q string, args ...interface{}) (bool, error) {
 	err := dg.conn.Get(target, q, args...)

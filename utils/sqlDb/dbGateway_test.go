@@ -255,3 +255,35 @@ func TestScanStructByQuery(t *testing.T) {
 	_, err = dbGateway.ScanScalarByQuery(&data, "Sql")
 	assert.EqualError(t, err, "Query 'Sql' with args [] has failed: Wrong struct field")
 }
+
+func TestFindOneStructById(t *testing.T) {
+	dbGateway, fakeDriver, err := initDbGateway("TestFindOneStructById_driver")
+	assert.NoError(t, err)
+
+	fakeDriver.Conn.FakeStmt.NumInputCount = 1
+
+	fakeDriver.Conn.FakeStmt.RowsSlice.Data = [][]interface{}{
+		{222, "red", "baloon"},
+	}
+	fakeDriver.Conn.FakeStmt.RowsSlice.Cols = []string{"number", "color", "object"}
+
+	data := SomeSlice{}
+
+	found, err := dbGateway.FindOneStructById(
+		&data,
+		"objects_table",
+		333,
+	)
+	assert.NoError(t, err)
+	assert.True(t, found)
+
+	assert.Equal(t, []string{"Select `objects_table`.* from `objects_table` WHERE `objects_table`.id=? LIMIT 1"}, fakeDriver.Conn.queries)
+
+	assert.Equal(
+		t,
+		SomeSlice{222, "red", "baloon"},
+		data,
+	)
+
+	assert.Equal(t, []driver.Value{int64(333)}, fakeDriver.Conn.FakeStmt.Args)
+}
