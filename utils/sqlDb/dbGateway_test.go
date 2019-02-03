@@ -13,7 +13,7 @@ func initDbGateway(driverId string) (*DbGateway, *FakeSqlDriver, error) {
 
 	sql.Register(driverId, fakeDriver)
 
-	sqlX, err := NewDb("conn_str", driverId, 1)
+	sqlX, err := NewDb("conn_str", driverId)
 
 	if err != nil {
 		return nil, fakeDriver, err

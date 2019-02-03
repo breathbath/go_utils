@@ -4,7 +4,6 @@ import (
 	baseSql "database/sql"
 	"fmt"
 	"github.com/breathbath/go_utils/utils/io"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 

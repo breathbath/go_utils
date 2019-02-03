@@ -22,7 +22,7 @@ func TestOpenConnection(t *testing.T) {
 
 	sql.Register("fake_driver_TestOpenConnection", &fakeDb)
 
-	sqlX, err := NewDb("conn_str", "fake_driver_TestOpenConnection", 1)
+	sqlX, err := NewDb("conn_str", "fake_driver_TestOpenConnection")
 	assert.NoError(t, err)
 
 	connections.WaitingConnectorIterativeDelayDuration = time.Microsecond
