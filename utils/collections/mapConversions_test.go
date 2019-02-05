@@ -3,12 +3,14 @@ package collections
 import (
 	testing2 "github.com/breathbath/go_utils/utils/testing"
 	"github.com/stretchr/testify/assert"
+	"sort"
 	"sync"
 	"testing"
 )
 
 var exampleStruct []string
 var exampleMap map[string]string
+var exampleMapInterface map[string]interface{}
 
 func init() {
 	exampleStruct = []string{
@@ -22,6 +24,11 @@ func init() {
 	exampleMap = map[string]string{
 		"one": "1",
 		"two": "2",
+	}
+
+	exampleMapInterface = map[string]interface{}{
+		"1": 1,
+		"2": 2,
 	}
 }
 
@@ -74,17 +81,17 @@ func TestGetMapValueOrError(t *testing.T) {
 }
 
 func TestExtractMapValues(t *testing.T) {
-	filter := []string{"one"}
-	actualResult, err := ExtractMapValues(filter, exampleMap)
-	assert.NoError(t, err)
-	expectedResult := []string{"1"}
-	assert.Equal(t, expectedResult, actualResult)
+	actualResult := ExtractMapValues(exampleMapInterface)
+	expectedResult := []int{1,2}
 
-	filter = []string{"two", "nonExistingKey"}
-	actualResult, err = ExtractMapValues(filter, exampleMap)
-	assert.EqualError(t, err, "No value for key 'nonExistingKey' in the map")
-	expectedResult = []string{"2", ""}
-	assert.Equal(t, expectedResult, actualResult)
+	actualResultInts := []int{}
+	for _, actualResultI := range actualResult {
+		actualResultInts = append(actualResultInts, actualResultI.(int))
+	}
+
+	sort.Ints(actualResultInts)
+
+	assert.Equal(t, expectedResult, actualResultInts)
 }
 
 func TestJoinMap(t *testing.T) {
@@ -109,10 +116,10 @@ func TestJoinMap(t *testing.T) {
 	}
 }
 
-func TestMapToStruct(t *testing.T) {
-	actualKeys, actualValues := MapToStruct(exampleMap)
-	//sort.Strings(actualKeys)
-	//sort.Strings(actualValues)
+func TestMapToSlices(t *testing.T) {
+	actualKeys, actualValues := MapToSlices(exampleMap)
+	sort.Strings(actualKeys)
+	sort.Strings(actualValues)
 
 	expectedKeys := []string{"one", "two"}
 	expectedValues := []string{"1", "2"}
