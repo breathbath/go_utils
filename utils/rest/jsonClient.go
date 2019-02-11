@@ -99,7 +99,7 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 
 	io2.OutputSingleLineWithTopic(requestContext.LoggingTopic, "Got response: '%s', status code: '%d'", string(respBody), resp.StatusCode)
 
-	err = ValidateResponse(requestContext.TargetUrl, resp)
+	err = ValidateResponse(requestContext.TargetUrl, resp, respBody)
 	return respBody, err, resp
 }
 
@@ -119,7 +119,7 @@ func (jc JsonClient) ScanToTarget(context RequestContext, target interface{}) er
 		return err
 	}
 
-	err = ValidateResponse(context.TargetUrl, resp)
+	err = ValidateResponse(context.TargetUrl, resp, body)
 	if err != nil {
 		return err
 	}
