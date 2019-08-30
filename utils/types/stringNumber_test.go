@@ -36,3 +36,11 @@ func TestStringNumberUnMarshalJSON(t *testing.T) {
 	err = someStringNumber.UnmarshalJSON([]byte("not_number"))
 	assert.EqualError(t, err, "Cannot unmarshal 'not_number' into a number type")
 }
+
+func TestStringNumberStringer(t *testing.T) {
+	someStringNumber := StringNumber{}
+	assert.Equal(t, "", someStringNumber.String())
+
+	someStringNumber = StringNumber{"222"}
+	assert.Equal(t, "222", someStringNumber.String())
+}

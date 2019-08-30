@@ -50,9 +50,16 @@ func TestConvertStringToEnum(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, MR, someSalutation)
 
+	driverVal, err := someSalutation.Value()
+	assert.NoError(t, err)
+	assert.NotNil(t, driverVal)
+
 	val, err := ConvertStringToEnum(SalutationMap, "Some unknown value", "SalutationMap")
 	assert.EqualError(t, err, "Unknown value 'Some unknown value' for enum 'SalutationMap'")
 	assert.Equal(t, 0, val)
+
+	err = someSalutation.SetFromName("lala")
+	assert.Error(t, err)
 }
 
 func TestConvertInterfaceToEnum(t *testing.T) {

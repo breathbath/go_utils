@@ -32,6 +32,9 @@ func TestGetRequestValueInt(t *testing.T) {
 
 	actualVal = GetRequestValueInt(reqExample, "someNumb", 0)
 	assert.EqualValues(t, -123, actualVal)
+
+	actualVal = GetRequestValueInt(reqExample, "someKey", -1)
+	assert.EqualValues(t, -1, actualVal)
 }
 
 func TestGetRequestValueTimeWithError(t *testing.T) {
@@ -45,6 +48,9 @@ func TestGetRequestValueTimeWithError(t *testing.T) {
 
 	_, err = GetRequestValueTimeWithError(reqExampleWrong, "time")
 	assert.EqualError(t, err, `parsing time "2001-01-01" as "2006-01-02T15-04-05": cannot parse "" as "T"`)
+
+	_, err = GetRequestValueTimeWithError(reqExample, "lala")
+	assert.EqualError(t, err, `No time value provided for key lala`)
 }
 
 func TestGetRequestValueTimeWithDefaultValue(t *testing.T) {

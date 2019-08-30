@@ -3,6 +3,7 @@ package fs
 import (
 	"bufio"
 	"github.com/breathbath/go_utils/utils/errs"
+	io2 "github.com/breathbath/go_utils/utils/io"
 	"io"
 	"io/ioutil"
 	"os"
@@ -49,7 +50,7 @@ func RmFile(filePath string) bool {
 }
 
 func JoinPath(parts ...string) string {
-	return strings.Join(parts, DS)
+	return filepath.Join(parts...)
 }
 
 func RTrimDirPath(inputDir string) string {
@@ -58,18 +59,18 @@ func RTrimDirPath(inputDir string) string {
 
 func ReadTextFile(filePath string, lineParser func(line string, lineNumber int) error) error {
 	file, err := os.Open(filePath)
-	defer file.Close()
 	if err != nil {
 		return err
 	}
 
+	defer file.Close()
+
 	reader := bufio.NewReader(file)
-	var line string
 	lineNumber := -1
 	for {
 		lineNumber++
-		line, err = reader.ReadString('\n')
-		if err != nil {
+		line, readErr := reader.ReadString('\n')
+		if line == "" && readErr != nil {
 			break
 		}
 
@@ -79,18 +80,29 @@ func ReadTextFile(filePath string, lineParser func(line string, lineNumber int) 
 		if err != nil {
 			return err
 		}
+
+		if readErr != nil {
+			err = readErr
+			break
+		}
 	}
 
-	if err != io.EOF {
-		return err
+	if err == io.EOF {
+		return nil
 	}
 
-	return nil
+	return err
 }
 
 func ReadFile(filePath string) ([]byte, error) {
 	file, err := os.Open(filePath)
-	defer file.Close()
+	defer func() {
+		errClose := file.Close()
+		if errClose != nil {
+			io2.OutputError(errClose, "", "")
+		}
+	}()
+
 	if err != nil {
 		return []byte{}, err
 	}
@@ -102,5 +114,9 @@ func ReadFile(filePath string) ([]byte, error) {
 
 func IsDirectory(path string) (bool, error) {
 	fileInfo, err := os.Stat(path)
-	return fileInfo.IsDir(), err
+	if err != nil {
+		return false, err
+	}
+
+	return fileInfo.IsDir(), nil
 }

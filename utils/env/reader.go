@@ -25,18 +25,45 @@ func readEnvironment(name string, defaultVal interface{}, conv func(val string) 
 	return conv(envVar)
 }
 
-func ReadEnvInt(name string, defaultVal int64) int64 {
+func ReadEnvInt64(name string, defaultVal int64) int64 {
 	return readEnvironment(
 		name,
 		defaultVal,
 		func(val string) interface{} {
-			floatResult, err := strconv.ParseInt(val, 0, 64)
+			intRes, err := strconv.ParseInt(val, 0, 64)
 			if err != nil {
 				return defaultVal
 			}
-			return floatResult
+			return intRes
 		},
 	).(int64)
+}
+
+func ReadEnvInt(name string, defaultVal int) int {
+	return readEnvironment(
+		name,
+		defaultVal,
+		func(val string) interface{} {
+			intRes, err := strconv.Atoi(val)
+			if err != nil {
+				return defaultVal
+			}
+			return intRes
+		},
+	).(int)
+}
+
+func ReadEnvBool(name string, defaultVal bool) bool {
+	return readEnvironment(
+		name,
+		defaultVal,
+		func(val string) interface{} {
+			if val == "true" {
+				return true
+			}
+			return false
+		},
+	).(bool)
 }
 
 func ReadEnvFloat(name string, defaultVal float64) float64 {

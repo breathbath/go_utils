@@ -71,5 +71,15 @@ func TestNullDecimalScan(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, someNullDecimal.Valid)
 		assert.Equal(t, expectedDecimal, someNullDecimal.DecimalValue)
+		driverVal, err := someNullDecimal.Value()
+		assert.NoError(t, err)
+		assert.NotNil(t, driverVal)
 	}
+}
+
+func TestInvalidNullDecimal(t *testing.T) {
+	invalidNullDecimal := NullDecimal{Valid: false}
+	val, err := invalidNullDecimal.Value()
+	assert.Nil(t, val)
+	assert.NoError(t, err)
 }

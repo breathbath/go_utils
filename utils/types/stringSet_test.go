@@ -61,6 +61,9 @@ func TestStringSetScan(t *testing.T) {
 	err = providedSs.Scan([]byte("one,two"))
 	assert.NoError(t, err)
 	assert.EqualValues(t, &StringSet{"one", "two"}, providedSs)
+
+	err = providedSs.Scan(1)
+	assert.EqualError(t, err, "Unknown value type for ValueSet: 1")
 }
 
 func TestStringSetValueConversion(t *testing.T) {

@@ -19,7 +19,11 @@ func BuildUrl(host, path, rawQuery string) (string, error) {
 }
 
 func GetValidUrlFromEnvVar(urlEnvVarName string) (url.URL, error) {
-	envRootUrl := env.ReadEnvOrFail(urlEnvVarName)
+	envRootUrl, err := env.ReadEnvOrError(urlEnvVarName)
+	if err != nil {
+		return url.URL{}, err
+	}
+
 	parsedUrl, err := url.Parse(strings.TrimRight(envRootUrl, "/"))
 	if err != nil {
 		return url.URL{}, err

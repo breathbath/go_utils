@@ -83,11 +83,19 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 	resp, err := client.Do(req)
 	if err != nil {
 		if resp != nil && resp.Body != nil {
-			resp.Body.Close()
+			closeErr := resp.Body.Close()
+			if closeErr != nil {
+				io2.OutputError(closeErr, requestContext.LoggingTopic, "")
+			}
 		}
 		return []byte{}, fmt.Errorf("Request failed with error: %v", err), resp
 	}
-	defer resp.Body.Close()
+	defer func() {
+		closeErr := resp.Body.Close()
+		if closeErr != nil {
+			io2.OutputError(closeErr, requestContext.LoggingTopic, "")
+		}
+	}()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err == io.EOF {

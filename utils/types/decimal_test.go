@@ -33,6 +33,7 @@ func TestDecimalToFloat(t *testing.T) {
 func TestDecimalMathOperations(t *testing.T) {
 	decimalOne := NewDecimalFromString("3.123")
 	decimalTwo := NewDecimalFromString("0.1")
+	decimalZero := NewDecimalFromString("0")
 
 	assertEqualDecimals(t, "3.223", decimalOne.Add(decimalTwo))
 
@@ -43,8 +44,10 @@ func TestDecimalMathOperations(t *testing.T) {
 	assertEqualDecimals(t, "0.3123", decimalOne.Mul(decimalTwo))
 
 	assertEqualDecimals(t, "3.2", decimalOne.CeilToValue(decimalTwo))
+	assertEqualDecimals(t, "0", decimalZero.CeilToValue(NewDecimalFromInt(0)))
 
 	assertEqualDecimals(t, "3.1", decimalOne.FloorToValue(decimalTwo))
+	assertEqualDecimals(t, "0", decimalZero.FloorToValue(NewDecimalFromInt(0)))
 
 	assertEqualDecimals(t, "3", decimalOne.Floor())
 
@@ -85,6 +88,10 @@ func TestDecimalScan(t *testing.T) {
 	err = decimalVal.Scan(float64(2))
 	assert.NoError(t, err)
 	assertEqualDecimals(t, "2", decimalVal)
+
+	err = decimalVal.Scan(float32(4))
+	assert.NoError(t, err)
+	assertEqualDecimals(t, "4", decimalVal)
 }
 
 func TestValue(t *testing.T) {
