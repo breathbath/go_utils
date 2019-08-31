@@ -3,6 +3,7 @@ package io
 import (
 	"errors"
 	testing2 "github.com/breathbath/go_utils/utils/testing"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -77,4 +78,10 @@ func TestOutputMsgWithoutTopic(t *testing.T) {
 		OutputMessageType("Type", "", "Msg")
 	})
 	testing2.AssertLogText(t,"[Type] Msg", output)
+}
+
+func TestCutMessageWithNoLimit(t *testing.T) {
+	SetMaxMessageLength(0)
+	msg := CutMessageIfNeeded("some msg")
+	assert.Equal(t, "some msg", msg)
 }

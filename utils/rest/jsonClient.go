@@ -46,7 +46,11 @@ func NewJsonClient() JsonClient {
 }
 
 func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *http.Response) {
-	req, err := http.NewRequest(requestContext.Method, requestContext.TargetUrl, strings.NewReader(requestContext.Body))
+	req, err := http.NewRequest(
+		requestContext.Method,
+		requestContext.TargetUrl,
+		strings.NewReader(requestContext.Body),
+	)
 	if err != nil {
 		return []byte{}, err, nil
 	}
@@ -122,12 +126,7 @@ func (jc JsonClient) Post(context RequestContext) ([]byte, error, *http.Response
 }
 
 func (jc JsonClient) ScanToTarget(context RequestContext, target interface{}) error {
-	body, err, resp := jc.Get(context)
-	if err != nil {
-		return err
-	}
-
-	err = ValidateResponse(context.TargetUrl, resp, body)
+	body, err, _ := jc.Get(context)
 	if err != nil {
 		return err
 	}
@@ -142,14 +141,10 @@ func (jc JsonClient) ScanToTarget(context RequestContext, target interface{}) er
 
 func (jc JsonClient) ScanToTargetRecoveringOnProxyFailure(context RequestContext, target interface{}) error {
 	err := jc.ScanToTarget(context, target)
-	if err != nil {
-		if context.ProxyUrl != "" {
-			fmt.Printf("Request failure: %v. Will try to repeat without proxy\n", err)
-			context.ProxyUrl = ""
-			err = jc.ScanToTarget(context, target)
-		} else {
-			fmt.Printf("Request failure: %v", err)
-		}
+	if err != nil && context.ProxyUrl != "" {
+		io2.OutputWarning("", "Request failure: %v. Will try to repeat without proxy", err)
+		context.ProxyUrl = ""
+		err = jc.ScanToTarget(context, target)
 	}
 
 	return err

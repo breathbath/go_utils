@@ -223,6 +223,11 @@ func TestScanScalarByQuery(t *testing.T) {
 	fakeDriver.Conn.Error = errors.New("Wrong scalar type")
 	_, err = dbGateway.ScanScalarByQuery(&numb, "Sql")
 	assert.EqualError(t, err, "Query 'Sql' with args [] has failed: Wrong scalar type")
+
+	fakeDriver.Conn.Error = sql.ErrNoRows
+	found, err = dbGateway.ScanScalarByQuery(&numb, "Sql")
+	assert.False(t, found)
+	assert.NoError(t, err)
 }
 
 func TestScanStructByQuery(t *testing.T) {
@@ -252,8 +257,13 @@ func TestScanStructByQuery(t *testing.T) {
 	)
 
 	fakeDriver.Conn.Error = errors.New("Wrong struct field")
-	_, err = dbGateway.ScanScalarByQuery(&data, "Sql")
+	_, err = dbGateway.ScanStructByQuery(&data, "Sql")
 	assert.EqualError(t, err, "Query 'Sql' with args [] has failed: Wrong struct field")
+
+	fakeDriver.Conn.Error = sql.ErrNoRows
+	found, err = dbGateway.ScanStructByQuery(&data, "Sql")
+	assert.False(t, found)
+	assert.NoError(t, err)
 }
 
 func TestFindOneStructById(t *testing.T) {
