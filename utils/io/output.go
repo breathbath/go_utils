@@ -49,9 +49,13 @@ func OutputInfo(topic, msg string, args ...interface{}) {
 
 //OutputMessageType shows a message as [{messageType}] {message} [{topic}]
 func OutputMessageType(messageType, topic, msg string, args ...interface{}) {
+	finalMsg := msg
+	if len(args) > 0 {
+		finalMsg = fmt.Sprintf(msg, args...)
+	}
 	msgToOutput := GenerateMessage(
 		messageType,
-		fmt.Sprintf(msg, args...),
+		finalMsg,
 		topic,
 	)
 
@@ -59,6 +63,11 @@ func OutputMessageType(messageType, topic, msg string, args ...interface{}) {
 }
 
 func GenerateMessage(eventType, message, topic string) string {
+	if topic == "" && eventType == "" {
+		return message
+	}
+
+	message = strings.Replace(message, "%", "%%", -1)
 	if topic == "" {
 		return fmt.Sprintf("[%s] %s", eventType, message)
 	}

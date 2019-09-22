@@ -66,6 +66,14 @@ func TestOutputInfo(t *testing.T) {
 	testing2.AssertLogText(t,"[INFO] Many params 1, lala [Info_top]", output)
 }
 
+func TestOutputWithFormatChars(t *testing.T) {
+	a := "Some msg 10%---20%s"
+	output := testing2.CaptureOutput(func() {
+		OutputMessageType("INFO", "Top",  a)
+	})
+	testing2.AssertLogText(t,"[INFO] Some msg 10%---20%s [Top]", output)
+}
+
 func TestOutputMsgType(t *testing.T) {
 	output := testing2.CaptureOutput(func() {
 		OutputMessageType("Type", "Topic", "Msg")
