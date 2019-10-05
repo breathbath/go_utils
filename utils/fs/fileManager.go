@@ -2,6 +2,7 @@ package fs
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/breathbath/go_utils/utils/errs"
 	io2 "github.com/breathbath/go_utils/utils/io"
 	"io"
@@ -119,4 +120,55 @@ func IsDirectory(path string) (bool, error) {
 	}
 
 	return fileInfo.IsDir(), nil
+}
+
+func TouchFile(fullFilePath string) error {
+	err := ioutil.WriteFile(fullFilePath, []byte{}, 0644)
+	return err
+}
+
+func WriteFileString(fullFilePath, data string, perm os.FileMode) error {
+	err := ioutil.WriteFile(fullFilePath, []byte(data), 0644)
+	return err
+}
+
+func ReadFileString(fullFilePath string) (string, error) {
+	data, err := ioutil.ReadFile(fullFilePath)
+	return string(data), err
+}
+
+func ReadFileStringSecure(fullFilePath string) string {
+	data, _ := ReadFileString(fullFilePath)
+	return data
+}
+
+func CopyFile(fullFilePath, destFilePath string) error {
+	source, err := os.Open(fullFilePath)
+	if err != nil {
+		return fmt.Errorf("cannot open file '%s': %v", fullFilePath, err)
+	}
+	defer func() {
+		err := source.Close()
+		if err != nil {
+			io2.OutputWarning("", "failed to close source file %s: %v", fullFilePath, err)
+		}
+	}()
+
+	destination, err := os.Create(destFilePath)
+	if err != nil {
+		return fmt.Errorf("cannot open dest file '%s': %v", destFilePath, err)
+	}
+	defer func() {
+		err := destination.Close()
+		if err != nil {
+			io2.OutputWarning("", "failed to close dest file %s: %v", destFilePath, err)
+		}
+	}()
+
+	_, err = io.Copy(destination, source)
+	if err != nil {
+		return fmt.Errorf("cannot copy '%s' to '%s': %v", fullFilePath, destFilePath, err)
+	}
+
+	return nil
 }

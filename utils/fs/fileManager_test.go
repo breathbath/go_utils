@@ -68,7 +68,7 @@ func TestMkDir(t *testing.T) {
 }
 
 func TestRmFile(t *testing.T) {
-	err := ioutil.WriteFile("someFileToDelete.txt", []byte{}, 0644)
+	err := TouchFile("someFileToDelete.txt")
 	assert.NoError(t, err)
 
 	result := RmFile("someFileToDelete.txt")
@@ -194,4 +194,85 @@ func TestIsDirectory(t *testing.T) {
 		assert.NoError(t, err)
 		assert.False(t, isDir)
 	})
+}
+
+func TestTouchFile(t *testing.T) {
+	filePath := "fileToTouch.txt"
+	assert.False(t, FileExists(filePath))
+
+	err := TouchFile(filePath)
+	assert.NoError(t, err)
+
+	defer RmFile(filePath)
+
+	assert.True(t, FileExists(filePath))
+
+	data, err := ioutil.ReadFile(filePath)
+	assert.NoError(t, err)
+	assert.Len(t, data, 0)
+}
+
+func TestReadWriteFileString(t *testing.T) {
+	filePath := "fileToWrite.txt"
+	err := WriteFileString(filePath, "some", 0664)
+	assert.NoError(t, err)
+
+	defer RmFile(filePath)
+	data, err := ReadFileString(filePath)
+	assert.NoError(t, err)
+	if err == nil {
+		assert.Equal(t, "some", data)
+	}
+
+	data, err = ReadFileString("someUnknownFile.txt")
+	assert.IsType(t, &os.PathError{}, err)
+	assert.Equal(t, "", data)
+}
+
+func TestReadWriteFileStringSecure(t *testing.T) {
+	data := ReadFileStringSecure("someUnknownFile.txt")
+	assert.Equal(t, "", data)
+
+	filePath := "fileToWrite.txt"
+	defer RmFile(filePath)
+
+	err := WriteFileString(filePath, "some", 0664)
+	assert.NoError(t, err)
+
+	if err != nil {
+		return
+	}
+
+	actualData := ReadFileStringSecure(filePath)
+	assert.Equal(t, "some", actualData)
+}
+
+func TestCopyFile(t *testing.T) {
+	filePathSource := "sourceFile.txt"
+	filePathDest := "destFile.txt"
+
+	err := WriteFileString(filePathSource, "data to copy", 0664)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	defer RmFile(filePathSource)
+
+	err = CopyFile(filePathSource, filePathDest)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	defer RmFile(filePathDest)
+
+	actualData := ReadFileStringSecure(filePathDest)
+	assert.Equal(t, "data to copy", actualData)
+
+	err = CopyFile("nonExistingFile.txt", filePathDest)
+	assert.EqualError(t, err, "cannot open file 'nonExistingFile.txt': open nonExistingFile.txt: no such file or directory")
+
+	err = CopyFile(filePathSource, "/")
+	assert.EqualError(t, err, "cannot open dest file '/': open /: is a directory")
 }
