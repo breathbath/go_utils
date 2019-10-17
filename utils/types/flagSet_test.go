@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/stretchr/testify/assert"
+	"sort"
 	"testing"
 )
 
@@ -24,6 +25,11 @@ func TestGetNotMatchingKeys(t *testing.T) {
 		"green": false,
 	}
 
+	expectedNotMatchedFlags := []string{"red", "green"}
 	notMatchedFlags := flagSet.GetNotMatchedKeys()
-	assert.Equal(t, []string{"red", "green"}, notMatchedFlags)
+
+	sort.Strings(notMatchedFlags)
+	sort.Strings(expectedNotMatchedFlags)
+
+	assert.Equal(t, expectedNotMatchedFlags, notMatchedFlags)
 }
