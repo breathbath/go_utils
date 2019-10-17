@@ -41,3 +41,48 @@ func TestGetValidUrlFromEnvVar(t *testing.T) {
 	err = os.Unsetenv("SOME_BAD_URL")
 	assert.NoError(t, err)
 }
+
+func TestJoinUrl(t *testing.T) {
+	testCases := [][]string{
+		{
+			"http://ya.ru",
+			"lala",
+			"http://ya.ru/lala",
+		},
+		{
+			"//ya.ru/",
+			"dada",
+			"//ya.ru/dada",
+		},
+		{
+			"mama",
+			"mama",
+		},
+		{
+			"/papa////",
+			"/papa",
+		},
+		{
+			"https://ya.ru////",
+			"//one//",
+			"two",
+			"/three/",
+			"four/",
+			"/five",
+			"https://ya.ru/one/two/three/four/five",
+		},
+	}
+
+	for _, testCase := range testCases {
+		if len(testCase) < 2 {
+			t.Errorf("Wrong strings count %d in test cases, expected amount is > 2", len(testCase))
+			return
+		}
+
+		expectedResult := testCase[len(testCase) - 1]
+		parts := testCase[0:len(testCase) - 1]
+		actualResult := JoinUrl(parts...)
+
+		assert.Equal(t, expectedResult, actualResult)
+	}
+}

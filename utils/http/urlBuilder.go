@@ -18,6 +18,18 @@ func BuildUrl(host, path, rawQuery string) (string, error) {
 	return u.String(), nil
 }
 
+func JoinUrl(parts ...string) string {
+	preparedParts := make([]string, 0, len(parts))
+	for k, part := range parts {
+		if k == 0 {
+			preparedParts = append(preparedParts, strings.TrimRight(part, "/"))
+		} else {
+			preparedParts = append(preparedParts, strings.Trim(part, "/"))
+		}
+	}
+	return strings.Join(preparedParts, "/")
+}
+
 func GetValidUrlFromEnvVar(urlEnvVarName string) (url.URL, error) {
 	envRootUrl, err := env.ReadEnvOrError(urlEnvVarName)
 	if err != nil {
