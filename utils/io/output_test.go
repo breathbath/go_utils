@@ -15,6 +15,15 @@ each
 line`
 )
 
+type mockedLogger struct{
+	input string
+}
+
+func (ml *mockedLogger) OutputMessageType(messageType, topic, msg string, args ...interface{}) {
+	msg = fmt.Sprintf(msg, args...)
+	ml.input = fmt.Sprintf("%s-%s-%s", messageType, topic, msg)
+}
+
 func TestOutputSingleLine(t *testing.T) {
 	SetMaxMessageLength(100)
 	output := testing2.CaptureOutput(func() {
@@ -72,13 +81,13 @@ func TestOutputWithFormatChars(t *testing.T) {
 	output := testing2.CaptureOutput(func() {
 		OutputMessageType(SeverityInfo, "Top", a)
 	})
-	testing2.AssertLogText(t, "[" + SeverityInfo + "] Some msg 10%---20%s [Top]", output)
+	testing2.AssertLogText(t, "["+SeverityInfo+"] Some msg 10%---20%s [Top]", output)
 
 	b := "Some msg 10%%---20%s"
 	output2 := testing2.CaptureOutput(func() {
 		OutputMessageType(SeverityInfo, "Top", b, "percent")
 	})
-	testing2.AssertLogText(t, "[" + SeverityInfo + "] Some msg 10%---20percent [Top]", output2)
+	testing2.AssertLogText(t, "["+SeverityInfo+"] Some msg 10%---20percent [Top]", output2)
 }
 
 func TestOutputMsgType(t *testing.T) {
@@ -99,4 +108,13 @@ func TestCutMessageWithNoLimit(t *testing.T) {
 	SetMaxMessageLength(0)
 	msg := CutMessageIfNeeded("some msg")
 	assert.Equal(t, "some msg", msg)
+}
+
+func TestCustomLogger(t *testing.T) {
+	l := &mockedLogger{}
+	SetLogger(l)
+	defer SetLogger(DefaultLogger{})
+
+	OutputInfo("some top", "some msg %s", "here")
+	assert.Equal(t, "INFO-some top-some msg here", l.input)
 }

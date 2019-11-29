@@ -25,9 +25,9 @@ const (
 	SeverityWarning = "WARNING"
 )
 
-type defaultLogger struct {}
+type DefaultLogger struct {}
 
-func (dl defaultLogger) OutputMessageType(messageType, topic, msg string, args ...interface{}) {
+func (dl DefaultLogger) OutputMessageType(messageType, topic, msg string, args ...interface{}) {
 	finalMsg := msg
 	if len(args) > 0 {
 		finalMsg = fmt.Sprintf(msg, args...)
@@ -86,7 +86,7 @@ func OutputInfo(topic, msg string, args ...interface{}) {
 //OutputMessageType shows a message as [{messageType}] {message} [{topic}]
 func OutputMessageType(messageType, topic, msg string, args ...interface{}) {
 	if logger == nil {
-		logger = defaultLogger{}
+		logger = DefaultLogger{}
 	}
 
 	logger.OutputMessageType(messageType, topic, msg, args...)
