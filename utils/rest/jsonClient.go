@@ -78,10 +78,10 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 
 	if requestContext.IsVerbose {
 		dump, _ := httputil.DumpRequest(req, true)
-		io2.OutputSingleLineWithTopic(requestContext.LoggingTopic, "Input context: %s, raw request: %s", requestContext.String(), string(dump))
+		io2.OutputInfo(requestContext.LoggingTopic, "Input context: %s, raw request: %s", requestContext.String(), string(dump))
 	} else {
 		//hiding details here for security reasons (no sensitive data in logs)
-		io2.OutputSingleLineWithTopic(requestContext.LoggingTopic, "Calling api")
+		io2.OutputInfo(requestContext.LoggingTopic, "Calling api")
 	}
 
 	resp, err := client.Do(req)
@@ -109,7 +109,7 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 		return []byte{}, fmt.Errorf("Reading of the request body failed with error: %v, status: %d", err, resp.StatusCode), resp
 	}
 
-	io2.OutputSingleLineWithTopic(requestContext.LoggingTopic, "Got response: '%s', status code: '%d'", string(respBody), resp.StatusCode)
+	io2.OutputInfo(requestContext.LoggingTopic, "Got response: '%s', status code: '%d'", string(respBody), resp.StatusCode)
 
 	err = ValidateResponse(requestContext.TargetUrl, resp, respBody)
 	return respBody, err, resp

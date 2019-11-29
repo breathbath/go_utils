@@ -2,13 +2,14 @@ package io
 
 import (
 	"errors"
+	"fmt"
 	testing2 "github.com/breathbath/go_utils/utils/testing"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-const(
-	MULTILINE_TEXT=`One
+const (
+	MULTILINE_TEXT = `One
 per
 each
 line`
@@ -17,31 +18,31 @@ line`
 func TestOutputSingleLine(t *testing.T) {
 	SetMaxMessageLength(100)
 	output := testing2.CaptureOutput(func() {
-		OutputSingleLine("Some msg %s", "text")
+		OutputInfo("", "Some msg %s", "text")
 	})
 
-	testing2.AssertLogText(t, "Some msg text", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Some msg text", SeverityInfo), output)
 
 	output = testing2.CaptureOutput(func() {
-		OutputSingleLine(MULTILINE_TEXT)
+		OutputInfo("", MULTILINE_TEXT)
 	})
 
-	testing2.AssertLogText(t,"One per each line", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] One per each line", SeverityInfo), output)
 
 	SetMaxMessageLength(10)
 	output = testing2.CaptureOutput(func() {
-		OutputSingleLine("Too long string to show")
+		OutputInfo("", "Too long string to show")
 	})
 
-	testing2.AssertLogText(t,"Too long s", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Too long s", SeverityInfo), output)
 }
 
 func TestOutputSingleLineWithTopic(t *testing.T) {
 	SetMaxMessageLength(100)
 	output := testing2.CaptureOutput(func() {
-		OutputSingleLineWithTopic("Some topic", "Some msg %s", "text")
+		OutputInfo("Some topic", "Some msg %s", "text")
 	})
-	testing2.AssertLogText(t,"[Some topic] Some msg text", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Some msg text [Some topic]", SeverityInfo), output)
 }
 
 func TestOutputError(t *testing.T) {
@@ -49,43 +50,49 @@ func TestOutputError(t *testing.T) {
 		err := errors.New("Some error")
 		OutputError(err, "Some topic", "Some msg %s", "text")
 	})
-	testing2.AssertLogText(t,"[ERROR] Some error, Some msg text [Some topic]", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Some error, Some msg text [Some topic]", SeverityError), output)
 }
 
 func TestOutputWarning(t *testing.T) {
 	output := testing2.CaptureOutput(func() {
 		OutputWarning("Topic", "Number %d", 1)
 	})
-	testing2.AssertLogText(t,"[WARNING] Number 1 [Topic]", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Number 1 [Topic]", SeverityWarning), output)
 }
 
 func TestOutputInfo(t *testing.T) {
 	output := testing2.CaptureOutput(func() {
 		OutputInfo("Info_top", "Many params %d, %s", 1, "lala")
 	})
-	testing2.AssertLogText(t,"[INFO] Many params 1, lala [Info_top]", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Many params 1, lala [Info_top]", SeverityInfo), output)
 }
 
 func TestOutputWithFormatChars(t *testing.T) {
 	a := "Some msg 10%---20%s"
 	output := testing2.CaptureOutput(func() {
-		OutputMessageType("INFO", "Top",  a)
+		OutputMessageType(SeverityInfo, "Top", a)
 	})
-	testing2.AssertLogText(t,"[INFO] Some msg 10%---20%s [Top]", output)
+	testing2.AssertLogText(t, "[" + SeverityInfo + "] Some msg 10%---20%s [Top]", output)
+
+	b := "Some msg 10%%---20%s"
+	output2 := testing2.CaptureOutput(func() {
+		OutputMessageType(SeverityInfo, "Top", b, "percent")
+	})
+	testing2.AssertLogText(t, "[" + SeverityInfo + "] Some msg 10%---20percent [Top]", output2)
 }
 
 func TestOutputMsgType(t *testing.T) {
 	output := testing2.CaptureOutput(func() {
-		OutputMessageType("Type", "Topic", "Msg")
+		OutputMessageType(SeverityWarning, "Topic", "Msg")
 	})
-	testing2.AssertLogText(t,"[Type] Msg [Topic]", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Msg [Topic]", SeverityWarning), output)
 }
 
 func TestOutputMsgWithoutTopic(t *testing.T) {
 	output := testing2.CaptureOutput(func() {
-		OutputMessageType("Type", "", "Msg")
+		OutputMessageType(SeverityWarning, "", "Msg")
 	})
-	testing2.AssertLogText(t,"[Type] Msg", output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] Msg", SeverityWarning), output)
 }
 
 func TestCutMessageWithNoLimit(t *testing.T) {
