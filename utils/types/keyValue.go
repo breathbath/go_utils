@@ -24,3 +24,9 @@ type KeyValueBool struct {
 	Value bool
 }
 
+//KeyValueInterface just handy implementation for map[string]interface{} as []KeyValueInterface
+type KeyValueInterface struct {
+	Key   string
+	Value interface{}
+}
+
