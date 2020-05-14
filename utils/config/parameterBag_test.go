@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestMapValuesProvider(t *testing.T) {
@@ -126,8 +127,23 @@ func TestValuesProviderComposite(t *testing.T) {
 func TestParameterBag(t *testing.T) {
 	mvp := NewMapValuesProvider(map[string]interface{}{
 		"intval": 1,
+		"intval64": int64(12),
 		"strval": "someStr",
+		"strvalEmpty": "",
 		"struct": struct{a bool}{a: true},
+		"stringsVal": []string{"one", "two"},
+		"stringsValEmpty": []string{},
+		"intStrVal": "33",
+		"dur": time.Second * 34,
+		"boolStrFalse": "false",
+		"boolStrTrue": "true",
+		"boolFalse": false,
+		"boolTrue": true,
+		"int0": 0,
+		"int-1": -1,
+		"str0": "0",
+		"unitVal": uint(14),
+		"nil": nil,
 	})
 
 	pb := New(mvp)
@@ -155,6 +171,9 @@ func TestParameterBag(t *testing.T) {
 	val55 := pb.ReadString("struct", "someVal")
 	assert.Equal(t, "{true}", val55)
 
+	val551 := pb.ReadString("strval", "someVal")
+	assert.Equal(t, "someStr", val551)
+
 	val6, err := pb.ReadRequiredString("strval")
 	assert.NoError(t, err)
 	assert.Equal(t, "someStr", val6)
@@ -165,4 +184,249 @@ func TestParameterBag(t *testing.T) {
 	val7, err := pb.ReadRequiredString("struct")
 	assert.NoError(t, err,)
 	assert.Equal(t, "{true}", val7)
+
+	_, err = pb.ReadRequiredString("strvalEmpty")
+	assert.EqualError(t, err, "required option strvalEmpty is empty")
+
+	val8 := pb.ReadStrings("stringsVal", "threee")
+	assert.Equal(t,  []string{"one", "two"}, val8)
+
+	val9 := pb.ReadStrings("notfoundval", "threee", "four")
+	assert.Equal(t,  []string{"threee", "four"}, val9)
+
+	val10 := pb.ReadStrings("strval", "threee")
+	assert.Equal(t,  []string{"someStr"}, val10)
+
+	val11 := pb.ReadStrings("struct", "threee")
+	assert.Equal(t,  []string{"threee"}, val11)
+
+	val12, err := pb.ReadRequiredStrings("stringsVal")
+	assert.NoError(t, err,)
+	assert.Equal(t,  []string{"one", "two"}, val12)
+
+	val13, err := pb.ReadRequiredStrings("strval")
+	assert.NoError(t, err,)
+	assert.Equal(t,  []string{"someStr"}, val13)
+
+	_, err = pb.ReadRequiredStrings("notfoundval")
+	assert.EqualError(t, err, "required option notfoundval is empty")
+
+	_, err = pb.ReadRequiredStrings("struct")
+	assert.EqualError(t, err, "cannot convert value {true} to []string")
+
+	val14 := pb.ReadInt("intval", 14)
+	assert.Equal(t, 1, val14)
+
+	val15 := pb.ReadInt("notfoundval", 15)
+	assert.Equal(t, 15, val15)
+
+	val555 := pb.ReadInt("struct", 14)
+	assert.Equal(t, 14, val555)
+
+	val556 := pb.ReadInt("intStrVal", 22)
+	assert.Equal(t, 33, val556)
+
+	val16, err := pb.ReadRequiredInt("intval")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, val16)
+
+	_, err = pb.ReadRequiredInt("notfoundval")
+	assert.EqualError(t, err, "required option notfoundval is empty")
+
+	val17, err := pb.ReadRequiredInt("intStrVal")
+	assert.NoError(t, err,)
+	assert.Equal(t, 33, val17)
+
+	_, err = pb.ReadRequiredInt("strval")
+	assert.EqualError(t, err, "cannot convert someStr to int")
+
+	_, err = pb.ReadRequiredInt("struct")
+	assert.EqualError(t, err, "cannot convert {true} to int")
+
+	val18 := pb.ReadInt64("intval", 14)
+	assert.Equal(t, int64(1), val18)
+
+	val19 := pb.ReadInt64("notfoundval", 15)
+	assert.Equal(t, int64(15), val19)
+
+	val20 := pb.ReadInt64("struct", 14)
+	assert.Equal(t, int64(14), val20)
+
+	val21 := pb.ReadInt64("intStrVal", 22)
+	assert.Equal(t, int64(33), val21)
+
+	val211 := pb.ReadInt64("intval64", 22)
+	assert.Equal(t, int64(12), val211)
+
+	val22, err := pb.ReadRequiredInt64("intval")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), val22)
+
+	val221, err := pb.ReadRequiredInt64("intval64")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(12), val221)
+
+	_, err = pb.ReadRequiredInt64("notfoundval")
+	assert.EqualError(t, err, "required option notfoundval is empty")
+
+	val23, err := pb.ReadRequiredInt64("intStrVal")
+	assert.NoError(t, err,)
+	assert.Equal(t, int64(33), val23)
+
+	_, err = pb.ReadRequiredInt64("strval")
+	assert.EqualError(t, err, "cannot convert someStr to int64")
+
+	_, err = pb.ReadRequiredInt64("struct")
+	assert.EqualError(t, err, "cannot convert {true} to int64")
+
+	val24 := pb.ReadDuration("intval", time.Second, 55)
+	assert.Equal(t, time.Second, val24)
+
+	val25 := pb.ReadDuration("notfoundval", time.Second, 55)
+	assert.Equal(t, time.Second * 55, val25)
+
+	val26 := pb.ReadDuration("struct", time.Second, 55)
+	assert.Equal(t, time.Second * 55, val26)
+
+	val27 := pb.ReadDuration("intStrVal", time.Second, 56)
+	assert.Equal(t, time.Second * 33, val27)
+
+	val28 := pb.ReadDuration("dur", time.Second, 57)
+	assert.Equal(t, time.Second * 34, val28)
+
+	val29, err := pb.ReadRequiredDuration("dur", time.Minute)
+	assert.NoError(t, err)
+	assert.Equal(t, time.Second * 34, val29)
+
+	val30, err := pb.ReadRequiredDuration("intStrVal", time.Minute)
+	assert.NoError(t, err)
+	assert.Equal(t, time.Minute * 33, val30)
+
+	_, err = pb.ReadRequiredDuration("notfoundval", time.Minute)
+	assert.EqualError(t, err, "required option notfoundval is empty")
+
+	val31, err := pb.ReadRequiredDuration("intval", time.Minute)
+	assert.NoError(t, err,)
+	assert.Equal(t, time.Minute, val31)
+
+	_, err = pb.ReadRequiredDuration("strval", time.Minute)
+	assert.EqualError(t, err, "cannot convert someStr to uint")
+
+	_, err = pb.ReadRequiredDuration("struct", time.Minute)
+	assert.EqualError(t, err, "cannot convert {true} to uint")
+
+	val32 := pb.ReadBool("boolStrFalse", true)
+	assert.Equal(t, false, val32)
+
+	val33 := pb.ReadBool("notfoundval", true)
+	assert.Equal(t, true, val33)
+
+	val34 := pb.ReadBool("notfoundval", false)
+	assert.Equal(t, false, val34)
+
+	val35 := pb.ReadBool("int0", true)
+	assert.Equal(t, false, val35)
+
+	val36 := pb.ReadBool("str0", true)
+	assert.Equal(t, false, val36)
+
+	val37 := pb.ReadBool("strvalEmpty", true)
+	assert.Equal(t, false, val37)
+
+	val38 := pb.ReadBool("stringsValEmpty", true)
+	assert.Equal(t, false, val38)
+
+	val39 := pb.ReadBool("intval", false)
+	assert.Equal(t, true, val39)
+
+	val40 := pb.ReadBool("intval64", false)
+	assert.Equal(t, true, val40)
+
+	val41 := pb.ReadBool("strval", false)
+	assert.Equal(t, true, val41)
+
+	val42 := pb.ReadBool("stringsVal", false)
+	assert.Equal(t, true, val42)
+
+	val43 := pb.ReadBool("dur", false)
+	assert.Equal(t, true, val43)
+
+	val44 := pb.ReadBool("boolStrTrue", false)
+	assert.Equal(t, true, val44)
+
+	val441 := pb.ReadBool("boolTrue", false)
+	assert.Equal(t, true, val441)
+
+	val442 := pb.ReadBool("boolFalse", true)
+	assert.Equal(t, false, val442)
+
+	val45, err := pb.ReadRequiredBool("boolStrTrue")
+	assert.NoError(t, err)
+	assert.Equal(t, true, val45)
+
+	val451, err := pb.ReadRequiredBool("boolTrue")
+	assert.NoError(t, err)
+	assert.Equal(t, true, val451)
+
+	val452, err := pb.ReadRequiredBool("boolFalse")
+	assert.NoError(t, err)
+	assert.Equal(t, false, val452)
+
+	val46, err := pb.ReadRequiredBool("int0")
+	assert.NoError(t, err)
+	assert.Equal(t, false, val46)
+
+	_, err = pb.ReadRequiredBool("notfoundval")
+	assert.EqualError(t, err, "required option notfoundval is empty")
+
+	val47, err := pb.ReadRequiredBool("str0")
+	assert.NoError(t, err,)
+	assert.Equal(t, false, val47)
+
+	val48 := pb.ReadUint("intval", 14)
+	assert.Equal(t, uint(1), val48)
+
+	val49 := pb.ReadUint("unitVal", 14)
+	assert.Equal(t, uint(14), val49)
+
+	val50 := pb.ReadUint("notfoundval", 15)
+	assert.Equal(t, uint(15), val50)
+
+	val51 := pb.ReadUint("struct", 14)
+	assert.Equal(t, uint(14), val51)
+
+	val52 := pb.ReadUint("intStrVal", 22)
+	assert.Equal(t, uint(33), val52)
+
+	val53 := pb.ReadUint("intval64", 22)
+	assert.Equal(t, uint(12), val53)
+
+	val54 := pb.ReadUint("int-1", 23)
+	assert.Equal(t, uint(23), val54)
+
+	val56, err := pb.ReadRequiredUint("unitVal")
+	assert.NoError(t, err)
+	assert.Equal(t, uint(14), val56)
+
+	_, err = pb.ReadRequiredUint("int-1")
+	assert.EqualError(t, err, "cannot convert -1 to uint")
+
+	_, err = pb.ReadRequiredUint("notfoundval")
+	assert.EqualError(t, err, "required option notfoundval is empty")
+
+	val57, err := pb.ReadRequiredUint("intStrVal")
+	assert.NoError(t, err,)
+	assert.Equal(t, uint(33), val57)
+
+	_, err = pb.ReadRequiredUint("strval")
+	assert.EqualError(t, err, "cannot convert someStr to uint")
+
+	_, err = pb.ReadRequiredUint("struct")
+	assert.EqualError(t, err, "cannot convert {true} to uint")
+
+	err = pb.CheckRequiredValues([]string{"notfoundVal", "boolFalse", "notFoundVAl3"})
+	assert.EqualError(t, err, "required option notfoundVal is empty required option notFoundVAl3 is empty")
+
+	err = pb.CheckRequiredValues([]string{"intval", "boolFalse", "intval64", "stringsValEmpty", "strvalEmpty", "str0", "nil"})
+	assert.NoError(t, err)
 }

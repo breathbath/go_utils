@@ -270,7 +270,15 @@ func (p ParameterBag) ReadRequiredInt(name string) (int, error) {
 
 	val, ok := valI.(int)
 	if !ok {
-		return 0, fmt.Errorf("cannot convert %v to int", valI)
+		valStr, ok := valI.(string)
+		if !ok {
+			return 0, fmt.Errorf("cannot convert %v to int", valI)
+		}
+		intVal, err := strconv.Atoi(valStr)
+		if err != nil {
+			return 0, fmt.Errorf("cannot convert %v to int", valI)
+		}
+		return intVal, nil
 	}
 
 	return val, nil
@@ -304,6 +312,10 @@ func (p ParameterBag) ReadRequiredInt64(name string) (int64, error) {
 
 	val, ok := valI.(int64)
 	if !ok {
+		intVal, err := strconv.ParseInt(fmt.Sprint(valI), 10, 64)
+		if err == nil {
+			return intVal, nil
+		}
 		return 0, fmt.Errorf("cannot convert %v to int64", valI)
 	}
 
@@ -314,7 +326,7 @@ func (p ParameterBag) ReadRequiredInt64(name string) (int64, error) {
 func (p ParameterBag) ReadDuration(name string, unit time.Duration, defaultVal uint) time.Duration {
 	val, err := p.ReadRequiredDuration(name, unit)
 	if err != nil {
-		return time.Duration(defaultVal)
+		return unit * time.Duration(defaultVal)
 	}
 
 	return val
@@ -322,12 +334,22 @@ func (p ParameterBag) ReadDuration(name string, unit time.Duration, defaultVal u
 
 //ReadRequiredDuration reads int value and converts it to duration identified by the unit, if not set, will return error
 func (p ParameterBag) ReadRequiredDuration(name string, unit time.Duration) (time.Duration, error) {
-	val, err := p.ReadRequiredUint(name)
+	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return 0, err
 	}
 
-	return unit * time.Duration(val), nil
+	val, ok := valI.(time.Duration)
+	if ok {
+		return val, nil
+	}
+
+	valUint, err := p.ReadRequiredUint(name)
+	if err != nil {
+		return 0, err
+	}
+
+	return unit * time.Duration(valUint), nil
 }
 
 //ReadBool same as Read but returns a bool or defaultVal
