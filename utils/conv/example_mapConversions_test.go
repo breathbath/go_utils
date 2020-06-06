@@ -1,4 +1,4 @@
-package collections
+package conv
 
 import (
 	"fmt"

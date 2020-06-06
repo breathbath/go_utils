@@ -1,7 +1,8 @@
 //Package collections provides methods to operate on collections of values (structs/maps/arrays)
-package collections
+package conv
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -84,5 +85,45 @@ func MapToSlices(inputMap map[string]string) (keys, values []string) {
 		values = append(values, val)
 	}
 
+	return
+}
+
+//ConvertSyncMapToMap converts sync.Map to map[string]interface{}
+func ConvertSyncMapToMap(input *sync.Map) (output map[string]interface{}) {
+	output = map[string]interface{}{}
+	input.Range(func(key, value interface{}) bool {
+		output[key.(string)] = value
+		return true
+	})
+
+	return
+}
+
+//ConvertMapToSyncMap converts map[string]interface{} to sync.Map
+func ConvertMapToSyncMap(input map[string]interface{}) (output *sync.Map) {
+	output = &sync.Map{}
+	for k, val := range input {
+		output.Store(k, val)
+	}
+
+	return
+}
+
+//MarshalSyncMap converts sync.Map to a json formatted byte string
+func MarshalSyncMap(input *sync.Map) (data []byte, err error) {
+	simpleMap := ConvertSyncMapToMap(input)
+	return json.Marshal(simpleMap)
+}
+
+//UnMarshalSyncMap converts json formatted byte string to sync.Map
+func UnMarshalSyncMap(data []byte) (syncMap *sync.Map, err error) {
+	simpleMap := make(map[string]interface{})
+	err = json.Unmarshal(data, &simpleMap)
+	if err != nil {
+		err = fmt.Errorf("failed to convert `%s` to map[string]interface{}: %w", string(data), err)
+		return
+	}
+
+	syncMap = ConvertMapToSyncMap(simpleMap)
 	return
 }
