@@ -18,11 +18,11 @@ type ValuesProvider interface {
 }
 
 type MapValuesProvider struct {
-	parameters sync.Map
+	parameters *sync.Map
 }
 
 func NewMapValuesProvider(params map[string]interface{}) MapValuesProvider {
-	paramsMap := sync.Map{}
+	paramsMap := &sync.Map{}
 	for key, val := range params {
 		paramsMap.Store(key, val)
 	}
@@ -36,7 +36,7 @@ func NewMapValuesProvider(params map[string]interface{}) MapValuesProvider {
 
 //Copy takes internal items, merges them with newParams and returns the result
 func (mvp MapValuesProvider) Copy(newParams map[string]interface{}) MapValuesProvider {
-	resultItems := sync.Map{}
+	resultItems := &sync.Map{}
 	mvp.parameters.Range(func(key, value interface{}) bool {
 		resultItems.Store(key, value)
 		return true
@@ -78,7 +78,7 @@ func NewJsonValuesProvider(jsond io2.Reader) (jfvp JsonFileValuesProvider, err e
 		return
 	}
 
-	params := sync.Map{}
+	params := &sync.Map{}
 	for k, val := range objmap {
 		valStr := string(val)
 		if strings.HasPrefix(valStr, `"`) || valStr == "" {

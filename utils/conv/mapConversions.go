@@ -120,7 +120,7 @@ func UnMarshalSyncMap(data []byte) (syncMap *sync.Map, err error) {
 	simpleMap := make(map[string]interface{})
 	err = json.Unmarshal(data, &simpleMap)
 	if err != nil {
-		err = fmt.Errorf("failed to convert `%s` to map[string]interface{}: %w", string(data), err)
+		err = fmt.Errorf("failed to convert `%s` to map[string]interface{}: %v", string(data), err)
 		return
 	}
 
