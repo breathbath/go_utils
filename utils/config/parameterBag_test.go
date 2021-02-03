@@ -1,15 +1,17 @@
 package options
 
 import (
+	"bytes"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
-func TestMapValuesProvider(t *testing.T) {
+func TestMapValuesProviderRead(t *testing.T) {
 	mvp := NewMapValuesProvider(map[string]interface{}{
 		"one": 1,
 		"two": "2",
@@ -39,9 +41,34 @@ func TestMapValuesProvider(t *testing.T) {
 	assert.Equal(t, true, val5)
 }
 
-func TestEnvValuesProvider(t *testing.T) {
+func TestMapValuesProviderDump(t *testing.T) {
+	mvp := NewMapValuesProvider(map[string]interface{}{
+		"one": 1,
+		"two": "2",
+	})
+
+	b := &bytes.Buffer{}
+	err := mvp.Dump(b)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	assert.Equal(t, `{"one":1,"two":"2"}` + "\n", b.String())
+}
+
+func TestEnvValuesProviderRead(t *testing.T) {
 	err := os.Setenv("someenv", "someenvval")
 	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+	defer func() {
+		err = os.Unsetenv("someenv")
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
 
 	evp := EnvValuesProvider{}
 
@@ -53,7 +80,33 @@ func TestEnvValuesProvider(t *testing.T) {
 	assert.False(t, found2)
 }
 
-func TestJsonFileValuesProvider(t *testing.T) {
+func TestEnvValuesProviderDump(t *testing.T) {
+	err := os.Setenv("someenv1", "someenvval1")
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+	defer func() {
+		err = os.Unsetenv("someenv1")
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	evp := EnvValuesProvider{}
+
+	b := &bytes.Buffer{}
+	err = evp.Dump(b)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	assert.Contains(t, b.String(), `someenv1`)
+	assert.Contains(t, b.String(), `someenvval1`)
+}
+
+func TestJsonFileValuesProviderRead(t *testing.T) {
 	buf := strings.NewReader(`{"key1":"val1","key2":2,"key3":3.3,"key4":null,"key5":""}`)
 	jvp, err := NewJsonValuesProvider(buf)
 	assert.NoError(t, err)
@@ -80,6 +133,25 @@ func TestJsonFileValuesProvider(t *testing.T) {
 
 	_, found6 := jvp.Read("someNonExistingVal")
 	assert.False(t, found6)
+}
+
+func TestJsonFileValuesProviderDump(t *testing.T) {
+	jsonStr := `{"key1":"val1","key2":2,"key3":3.3,"key4":null,"key5":""}`
+	readBuf := strings.NewReader(jsonStr)
+	jvp, err := NewJsonValuesProvider(readBuf)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	writeBuf := &bytes.Buffer{}
+	err = jvp.Dump(writeBuf)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	assert.Equal(t, jsonStr + "\n", writeBuf.String())
 }
 
 type failingReader struct{}

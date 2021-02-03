@@ -3,6 +3,7 @@ package options
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/breathbath/go_utils/utils/conv"
 	errs2 "github.com/breathbath/go_utils/utils/errs"
 	io2 "io"
 	"io/ioutil"
@@ -15,6 +16,7 @@ import (
 
 type ValuesProvider interface {
 	Read(name string) (val interface{}, found bool)
+	Dump(w io2.Writer) (err error)
 }
 
 type MapValuesProvider struct {
@@ -52,7 +54,14 @@ func (mvp MapValuesProvider) Copy(newParams map[string]interface{}) MapValuesPro
 }
 
 func (mvp MapValuesProvider) Read(name string) (val interface{}, found bool) {
-	return  mvp.parameters.Load(name)
+	return mvp.parameters.Load(name)
+}
+
+func (mvp MapValuesProvider) Dump(w io2.Writer) (err error) {
+	data := conv.ConvertSyncMapToMap(mvp.parameters)
+	jsonEncoder := json.NewEncoder(w)
+	err = jsonEncoder.Encode(data)
+	return
 }
 
 type EnvValuesProvider struct{}
@@ -61,7 +70,14 @@ func (mvp EnvValuesProvider) Read(name string) (val interface{}, found bool) {
 	return os.LookupEnv(name)
 }
 
-type JsonFileValuesProvider struct{
+func (mvp EnvValuesProvider) Dump(w io2.Writer) (err error) {
+	data := os.Environ()
+	jsonEncoder := json.NewEncoder(w)
+	err = jsonEncoder.Encode(data)
+	return
+}
+
+type JsonFileValuesProvider struct {
 	vals MapValuesProvider
 }
 
@@ -115,6 +131,10 @@ func NewJsonValuesProvider(jsond io2.Reader) (jfvp JsonFileValuesProvider, err e
 
 func (mvp JsonFileValuesProvider) Read(name string) (val interface{}, found bool) {
 	return mvp.vals.Read(name)
+}
+
+func (mvp JsonFileValuesProvider) Dump(w io2.Writer) (err error) {
+	return mvp.vals.Dump(w)
 }
 
 type ValuesProviderComposite struct {
