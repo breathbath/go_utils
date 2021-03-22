@@ -4,15 +4,15 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
-	io2 "github.com/breathbath/go_utils/utils/io"
 	"io"
 	"os"
+
+	io2 "github.com/breathbath/go_utils/utils/io"
 )
 
 func ReadCsvFile(filePath string, lineParser func(int, []string) error, lineSep rune, leastColumnsCount int) (err error) {
-
 	if !FileExists(filePath) {
-		err = fmt.Errorf("No file found at %s", filePath)
+		err = fmt.Errorf("no file found at %s", filePath)
 		return
 	}
 
@@ -40,7 +40,7 @@ func ReadCsvFile(filePath string, lineParser func(int, []string) error, lineSep 
 			break
 		} else if curErr != nil {
 			return fmt.Errorf(
-				"Failed to parse csv file %s at line %d, reason: %s",
+				"failed to parse csv file %s at line %d, reason: %s",
 				filePath,
 				lineNumber,
 				curErr.Error(),
@@ -49,7 +49,7 @@ func ReadCsvFile(filePath string, lineParser func(int, []string) error, lineSep 
 
 		if len(line) != leastColumnsCount {
 			return fmt.Errorf(
-				"Unexpected columns count %d on line %d: expected count is %d",
+				"unexpected columns count %d on line %d: expected count is %d",
 				len(line),
 				lineNumber,
 				leastColumnsCount,
@@ -62,5 +62,5 @@ func ReadCsvFile(filePath string, lineParser func(int, []string) error, lineSep 
 		}
 	}
 
-	return
+	return nil
 }

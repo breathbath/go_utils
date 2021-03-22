@@ -4,22 +4,23 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func initDbGateway(driverId string) (*DbGateway, *FakeSqlDriver, error) {
-	fakeDriver := NewFakeSqlDriver()
+func initDBGateway(driverID string) (*Gateway, *FakeSQLDriver, error) {
+	fakeDriver := NewFakeSQLDriver()
 
-	sql.Register(driverId, fakeDriver)
+	sql.Register(driverID, fakeDriver)
 
-	sqlX, err := NewDb("conn_str", driverId)
+	sqlX, err := NewDB("conn_str", driverID)
 
 	if err != nil {
 		return nil, fakeDriver, err
 	}
 
-	dbgatewy := NewDbGateway(sqlX)
+	dbgatewy := NewDBGateway(sqlX)
 
 	return dbgatewy, fakeDriver, nil
 }
@@ -31,7 +32,7 @@ type SomeSlice struct {
 }
 
 func TestFindByQuery(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestFindByQuery_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestFindByQuery_driver")
 	assert.NoError(t, err)
 
 	fakeDriver.Conn.FakeStmt.RowsSlice.Data = [][]interface{}{
@@ -60,13 +61,13 @@ func TestFindByQuery(t *testing.T) {
 		data,
 	)
 
-	fakeDriver.Conn.Error = errors.New("Wrong query syntax")
+	fakeDriver.Conn.Error = errors.New("wrong query syntax")
 	err = dbGateway.FindByQuery(&data, "Badsql", []interface{}{2})
-	assert.EqualError(t, err, "Query 'Badsql' with args [2] has failed: Wrong query syntax")
+	assert.EqualError(t, err, "query 'Badsql' with args [2] has failed: wrong query syntax")
 }
 
 func TestQueryWithCallback(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestQueryWithCallback_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestQueryWithCallback_driver")
 	assert.NoError(t, err)
 
 	fakeDriver.Conn.FakeStmt.RowsSlice.Data = [][]interface{}{
@@ -96,30 +97,30 @@ func TestQueryWithCallback(t *testing.T) {
 	)
 	assert.True(t, fakeDriver.Conn.FakeStmt.RowsSlice.IsClosed)
 
-	fakeDriver.Conn.Error = errors.New("Mismatch")
+	fakeDriver.Conn.Error = errors.New("mismatch")
 	err = dbGateway.QueryWithCallback(
 		func(row map[string]interface{}, errCallback error) {},
 		"badQ",
 		map[string]interface{}{},
 	)
-	assert.EqualError(t, err, "Query 'badQ' with args map[] has failed: Mismatch")
+	assert.EqualError(t, err, "query 'badQ' with args map[] has failed: mismatch")
 }
 
 func TestExec(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestExec_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestExec_driver")
 	assert.NoError(t, err)
 
 	_, err = dbGateway.Exec("Some exec query")
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"Some exec query"}, fakeDriver.Conn.queries)
 
-	fakeDriver.Conn.Error = errors.New("Wrong query syntax")
+	fakeDriver.Conn.Error = errors.New("wrong query syntax")
 	_, err = dbGateway.Exec("Bad query", 1, 2)
-	assert.EqualError(t, err, "Query 'Bad query' with args [1 2] has failed: Wrong query syntax")
+	assert.EqualError(t, err, "query 'Bad query' with args [1 2] has failed: wrong query syntax")
 }
 
 func TestTransactions(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestTransactions_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestTransactions_driver")
 	assert.NoError(t, err)
 
 	lastFx := fakeDriver.Conn.FakeFx
@@ -145,7 +146,7 @@ func TestTransactions(t *testing.T) {
 }
 
 func TestTruncate(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestTruncate_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestTruncate_driver")
 	assert.NoError(t, err)
 
 	_, err = dbGateway.TruncateTable("mytable")
@@ -154,19 +155,26 @@ func TestTruncate(t *testing.T) {
 }
 
 func TestDestroy(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestDestroy_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestDestroy_driver")
 	assert.NoError(t, err)
 
-	dbGateway.Exec("Some query to open conn")
+	_, err = dbGateway.Exec("Some query to open conn")
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
 
 	err = dbGateway.Destroy()
 	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
 
 	assert.True(t, fakeDriver.Conn.IsClosed)
 }
 
 func TestFindByQueryFlex(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestFindByQueryFlex_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestFindByQueryFlex_driver")
 	assert.NoError(t, err)
 
 	fakeDriver.Conn.FakeStmt.NumInputCount = 2
@@ -198,13 +206,13 @@ func TestFindByQueryFlex(t *testing.T) {
 
 	assert.Equal(t, []driver.Value{int64(1), "param2"}, fakeDriver.Conn.FakeStmt.Args)
 
-	fakeDriver.Conn.Error = errors.New("Bad arguments count")
+	fakeDriver.Conn.Error = errors.New("bad arguments count")
 	err = dbGateway.FindByQueryFlex(&data, "Badsql")
-	assert.EqualError(t, err, "Query 'Badsql' with args [] has failed: Bad arguments count")
+	assert.EqualError(t, err, "query 'Badsql' with args [] has failed: bad arguments count")
 }
 
 func TestScanScalarByQuery(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestScanScalarByQuery_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestScanScalarByQuery_driver")
 	assert.NoError(t, err)
 
 	fakeDriver.Conn.FakeStmt.RowsSlice.Cols = []string{"number"}
@@ -220,9 +228,9 @@ func TestScanScalarByQuery(t *testing.T) {
 	assert.True(t, found)
 	assert.Equal(t, int64(1), numb)
 
-	fakeDriver.Conn.Error = errors.New("Wrong scalar type")
+	fakeDriver.Conn.Error = errors.New("wrong scalar type")
 	_, err = dbGateway.ScanScalarByQuery(&numb, "Sql")
-	assert.EqualError(t, err, "Query 'Sql' with args [] has failed: Wrong scalar type")
+	assert.EqualError(t, err, "query 'Sql' with args [] has failed: wrong scalar type")
 
 	fakeDriver.Conn.Error = sql.ErrNoRows
 	found, err = dbGateway.ScanScalarByQuery(&numb, "Sql")
@@ -231,7 +239,7 @@ func TestScanScalarByQuery(t *testing.T) {
 }
 
 func TestScanStructByQuery(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestScanStructByQuery_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestScanStructByQuery_driver")
 	assert.NoError(t, err)
 
 	fakeDriver.Conn.FakeStmt.RowsSlice.Data = [][]interface{}{
@@ -256,9 +264,9 @@ func TestScanStructByQuery(t *testing.T) {
 		data,
 	)
 
-	fakeDriver.Conn.Error = errors.New("Wrong struct field")
+	fakeDriver.Conn.Error = errors.New("wrong struct field")
 	_, err = dbGateway.ScanStructByQuery(&data, "Sql")
-	assert.EqualError(t, err, "Query 'Sql' with args [] has failed: Wrong struct field")
+	assert.EqualError(t, err, "query 'Sql' with args [] has failed: wrong struct field")
 
 	fakeDriver.Conn.Error = sql.ErrNoRows
 	found, err = dbGateway.ScanStructByQuery(&data, "Sql")
@@ -267,7 +275,7 @@ func TestScanStructByQuery(t *testing.T) {
 }
 
 func TestFindOneStructById(t *testing.T) {
-	dbGateway, fakeDriver, err := initDbGateway("TestFindOneStructById_driver")
+	dbGateway, fakeDriver, err := initDBGateway("TestFindOneStructById_driver")
 	assert.NoError(t, err)
 
 	fakeDriver.Conn.FakeStmt.NumInputCount = 1
@@ -279,7 +287,7 @@ func TestFindOneStructById(t *testing.T) {
 
 	data := SomeSlice{}
 
-	found, err := dbGateway.FindOneStructById(
+	found, err := dbGateway.FindOneStructByID(
 		&data,
 		"objects_table",
 		333,

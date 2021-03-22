@@ -2,9 +2,10 @@ package conv
 
 import (
 	"database/sql"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertFloat(t *testing.T) {

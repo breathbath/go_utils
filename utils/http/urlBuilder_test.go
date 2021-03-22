@@ -1,21 +1,22 @@
 package http
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuildUrl(t *testing.T) {
-	actualUrl, err := BuildUrl("http://ya.ru", "/news", "val1=1&val2=2")
+	actualURL, err := BuildURL("http://ya.ru", "/news", "val1=1&val2=2")
 	assert.NoError(t, err)
-	assert.Equal(t, "http://ya.ru/news?val1=1&val2=2", actualUrl)
+	assert.Equal(t, "http://ya.ru/news?val1=1&val2=2", actualURL)
 }
 
 func TestBuildWrongUrl(t *testing.T) {
-	actualUrl, err := BuildUrl(":slsl:", "", "")
+	actualURL, err := BuildURL(":slsl:", "", "")
 	assert.Error(t, err)
-	assert.Equal(t, "", actualUrl)
+	assert.Equal(t, "", actualURL)
 }
 
 func TestGetValidUrlFromEnvVar(t *testing.T) {
@@ -25,14 +26,14 @@ func TestGetValidUrlFromEnvVar(t *testing.T) {
 	err = os.Setenv("SOME_BAD_URL", ":lsls")
 	assert.NoError(t, err)
 
-	actualUrl, err := GetValidUrlFromEnvVar("SOME_URL")
+	actualURL, err := GetValidURLFromEnvVar("SOME_URL")
 	assert.NoError(t, err)
-	assert.Equal(t, "localhost:8080/lala?mama=1", actualUrl.String())
+	assert.Equal(t, "localhost:8080/lala?mama=1", actualURL.String())
 
-	_, err = GetValidUrlFromEnvVar("SOME_BAD_URL")
+	_, err = GetValidURLFromEnvVar("SOME_BAD_URL")
 	assert.Error(t, err)
 
-	_, err = GetValidUrlFromEnvVar("SOME_NON_EXISTING_URL")
+	_, err = GetValidURLFromEnvVar("SOME_NON_EXISTING_URL")
 	assert.Error(t, err)
 
 	err = os.Unsetenv("SOME_URL")
@@ -79,9 +80,9 @@ func TestJoinUrl(t *testing.T) {
 			return
 		}
 
-		expectedResult := testCase[len(testCase) - 1]
-		parts := testCase[0:len(testCase) - 1]
-		actualResult := JoinUrl(parts...)
+		expectedResult := testCase[len(testCase)-1]
+		parts := testCase[0 : len(testCase)-1]
+		actualResult := JoinURL(parts...)
 
 		assert.Equal(t, expectedResult, actualResult)
 	}

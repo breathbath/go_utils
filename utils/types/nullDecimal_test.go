@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestJsonMarshal(t *testing.T) {
@@ -35,10 +36,11 @@ func TestJsonUnMarshal(t *testing.T) {
 	assert.True(t, nd.Valid)
 	assert.Equal(t, expectedDecimal, nd.DecimalValue)
 
-	err = nd.UnmarshalJSON([]byte("invalid decimal"))
-	assert.EqualError(t, err, "Error decoding string 'invalid decimal': can't convert invalid decimal to decimal: exponent is not numeric")
+	err1 := nd.UnmarshalJSON([]byte("invalid decimal"))
+	assert.EqualError(t, err1, "Error decoding string 'invalid decimal': can't convert invalid decimal to decimal: exponent is not numeric")
 
-	err = nd.UnmarshalJSON([]byte(`"22"`))
+	err2 := nd.UnmarshalJSON([]byte(`"22"`))
+	assert.NoError(t, err2)
 	expectedDecimal = NewDecimalFromString("22")
 	assert.True(t, nd.Valid)
 	assert.Equal(t, expectedDecimal, nd.DecimalValue)

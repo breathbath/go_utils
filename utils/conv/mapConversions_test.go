@@ -1,11 +1,12 @@
 package conv
 
 import (
-	testing2 "github.com/breathbath/go_utils/utils/testing"
-	"github.com/stretchr/testify/assert"
 	"sort"
 	"sync"
 	"testing"
+
+	testing2 "github.com/breathbath/go_utils/utils/testing"
+	"github.com/stretchr/testify/assert"
 )
 
 var exampleStruct []string
@@ -16,7 +17,7 @@ type syncMapTestCase struct {
 	syncMap   *sync.Map
 	legacyMap map[string]interface{}
 	strMap    string
-	errStr string
+	errStr    string
 }
 
 func init() {
@@ -83,7 +84,7 @@ func TestGetMapValueOrError(t *testing.T) {
 	assert.Equal(t, "1", val)
 
 	val, err = GetMapValueOrError(exampleMap, "nonExistingKey")
-	assert.EqualError(t, err, "No value for key 'nonExistingKey' in the map")
+	assert.EqualError(t, err, "no value for key 'nonExistingKey' in the map")
 	assert.Equal(t, "", val)
 }
 
@@ -269,9 +270,9 @@ func TestUnMarshalSyncMap(t *testing.T) {
 			legacyMap: map[string]interface{}{},
 		},
 		{
-			syncMap:   &sync.Map{},
-			strMap:    "dfadsfas",
-			errStr: "failed to convert `dfadsfas` to map[string]interface{}",
+			syncMap: &sync.Map{},
+			strMap:  "dfadsfas",
+			errStr:  "failed to convert `dfadsfas` to map[string]interface{}",
 		},
 	}
 

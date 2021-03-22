@@ -2,10 +2,11 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/go-sql-driver/mysql"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/stretchr/testify/assert"
 )
 
 type MockUser struct {

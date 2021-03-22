@@ -1,10 +1,11 @@
 package time
 
 import (
-	"github.com/breathbath/go_utils/utils/math"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/breathbath/go_utils/utils/math"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUnixTimestampMilliseconds(t *testing.T) {

@@ -2,11 +2,12 @@ package fs
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetCurrentPath(t *testing.T) {
@@ -24,7 +25,7 @@ func TestReadFilesInDirectory(t *testing.T) {
 	err := MkDir("lala")
 	assert.NoError(t, err)
 
-	err = ioutil.WriteFile("lala/someFile.txt", []byte(""), 0644)
+	err = ioutil.WriteFile("lala/someFile.txt", []byte(""), 0600)
 	assert.NoError(t, err)
 
 	files, err := ReadFilesInDirectory("lala")
@@ -134,10 +135,10 @@ func TestReadTextFile(t *testing.T) {
 		err := ReadTextFile(
 			"testFileWithErr.txt",
 			func(line string, lineNumb int) error {
-				return errors.New("Some error")
+				return errors.New("some error")
 			},
 		)
-		assert.EqualError(t, err, "Some error")
+		assert.EqualError(t, err, "some error")
 	})
 
 	err := ReadTextFile(
@@ -165,7 +166,7 @@ func TestReadFile(t *testing.T) {
 func testFile(t *testing.T, fileName string, fileContent []byte, testFunc func(t *testing.T)) {
 	RmFile(fileName)
 
-	err := ioutil.WriteFile(fileName, fileContent, 0644)
+	err := ioutil.WriteFile(fileName, fileContent, 0600)
 	assert.NoError(t, err)
 
 	testFunc(t)
@@ -213,7 +214,7 @@ func TestTouchFile(t *testing.T) {
 }
 
 func TestReadWriteFileString(t *testing.T) {
-	filePath := "fileToWrite.txt"
+	filePath := "fileToWrite2.txt"
 	err := WriteFileString(filePath, "some", 0664)
 	assert.NoError(t, err)
 

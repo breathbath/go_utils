@@ -1,21 +1,22 @@
 package http
 
 import (
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var reqExample *http.Request
 var reqExampleWrong *http.Request
 
 func init() {
-	correctUrl, _ := url.Parse("http://ya.ru?someKey=someVal&someNumb=-123&time=2001-01-01T11-00-00")
-	wrongUrl, _ := url.Parse("http://ya.ru?time=2001-01-01")
-	reqExample = &http.Request{URL: correctUrl}
-	reqExampleWrong = &http.Request{URL: wrongUrl}
+	correctURL, _ := url.Parse("http://ya.ru?someKey=someVal&someNumb=-123&time=2001-01-01T11-00-00")
+	wrongURL, _ := url.Parse("http://ya.ru?time=2001-01-01")
+	reqExample = &http.Request{URL: correctURL}
+	reqExampleWrong = &http.Request{URL: wrongURL}
 }
 
 func TestGetRequestValueString(t *testing.T) {
@@ -38,7 +39,7 @@ func TestGetRequestValueInt(t *testing.T) {
 }
 
 func TestGetRequestValueTimeWithError(t *testing.T) {
-	actualTime , err := GetRequestValueTimeWithError(reqExample, "time")
+	actualTime, err := GetRequestValueTimeWithError(reqExample, "time")
 	assert.NoError(t, err)
 
 	expectedTime, err := time.Parse("2006-01-02T15:04:05", "2001-01-01T11:00:00")
@@ -50,7 +51,7 @@ func TestGetRequestValueTimeWithError(t *testing.T) {
 	assert.EqualError(t, err, `parsing time "2001-01-01" as "2006-01-02T15-04-05": cannot parse "" as "T"`)
 
 	_, err = GetRequestValueTimeWithError(reqExample, "lala")
-	assert.EqualError(t, err, `No time value provided for key lala`)
+	assert.EqualError(t, err, `no time value provided for key lala`)
 }
 
 func TestGetRequestValueTimeWithDefaultValue(t *testing.T) {
@@ -58,6 +59,8 @@ func TestGetRequestValueTimeWithDefaultValue(t *testing.T) {
 	assert.NoError(t, err)
 
 	expectedTime, err := time.Parse("2006-01-02T15:04:05", "2001-01-01T11:00:00")
+	assert.NoError(t, err)
+
 	actualTime := GetRequestValueTime(reqExample, "time", defaultValue)
 	assert.Equal(t, expectedTime, actualTime)
 

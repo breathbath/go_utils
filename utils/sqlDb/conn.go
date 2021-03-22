@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-//LoggingFunc global variable func to add custom logging output
+// LoggingFunc global variable func to add custom logging output
 var LoggingFunc = func(msg string, err error) {
 	if err != nil {
 		io.OutputError(err, "", msg)
@@ -15,12 +15,12 @@ var LoggingFunc = func(msg string, err error) {
 	}
 }
 
-//NewDb creates db connection with multiple retries in case if mysql is not immediately available
-func NewDb(dsnConnString, sqlDriverName string) (*sqlx.DB, error) {
+// NewDB creates db connection with multiple retries in case if mysql is not immediately available
+func NewDB(dsnConnString, sqlDriverName string) (*sqlx.DB, error) {
 	return sqlx.Open(sqlDriverName, dsnConnString)
 }
 
-//ValidateConn pings the opened connection and fails if conn details are wrong
+// ValidateConn pings the opened connection and fails if conn details are wrong
 func ValidateConn(conn *sqlx.DB, maxConnAttempts int) error {
 	_, err := connections.WaitForConnection(
 		maxConnAttempts,

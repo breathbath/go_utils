@@ -1,8 +1,9 @@
 package math
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRound(t *testing.T) {
@@ -30,11 +31,6 @@ func TestCountDecimalPlaces(t *testing.T) {
 		result := CountDecimalPlaces(testSet[0])
 		assert.EqualValues(t, testSet[1], result)
 	}
-}
-
-func TestRandInt(t *testing.T) {
-	output := RandInt(10)
-	assert.True(t, output < 11, "The rand int number %d should be less than %d", output, 11)
 }
 
 func TestCountDigits(t *testing.T) {

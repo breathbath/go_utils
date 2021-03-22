@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type StringSet [] string
+type StringSet []string
 
 func (vs *StringSet) Add(value string) {
 	*vs = append(*vs, value)
@@ -42,13 +42,13 @@ func (vs *StringSet) UnmarshalJSON(jsonInput []byte) error {
 }
 
 func (vs *StringSet) Scan(value interface{}) error {
-	switch value.(type) {
+	switch strVal := value.(type) {
 	case string:
-		vs.setFromString(value.(string))
+		vs.setFromString(strVal)
 	case []byte:
-		vs.setFromString(string(value.([]byte)))
+		vs.setFromString(string(strVal))
 	default:
-		return fmt.Errorf("Unknown value type for ValueSet: %v", value)
+		return fmt.Errorf("unknown value type for ValueSet: %v", value)
 	}
 
 	return nil

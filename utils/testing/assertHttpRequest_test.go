@@ -2,11 +2,12 @@ package testing
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRequestEquality(t *testing.T) {
@@ -38,21 +39,21 @@ func TestRequestEquality(t *testing.T) {
 	}
 
 	localT := &testing.T{}
-	AssertRequestEqual(localT, RequestExpectation{IsNilRequestExpected: true}, nil)
+	AssertRequestEqual(localT, &RequestExpectation{IsNilRequestExpected: true}, nil)
 	assert.False(t, localT.Failed())
 
 	localT = &testing.T{}
-	AssertRequestEqual(localT, RequestExpectation{IsNilRequestExpected: true}, req)
+	AssertRequestEqual(localT, &RequestExpectation{IsNilRequestExpected: true}, req)
 	assert.True(t, localT.Failed())
 
 	localT = &testing.T{}
-	AssertRequestEqual(localT, RequestExpectation{IsNilRequestExpected: false}, nil)
+	AssertRequestEqual(localT, &RequestExpectation{IsNilRequestExpected: false}, nil)
 	assert.True(t, localT.Failed())
 
 	localT = &testing.T{}
 	AssertRequestEqual(
 		localT,
-		RequestExpectation{
+		&RequestExpectation{
 			IsNilRequestExpected: false,
 			ExpectedURL:          NewStringExpectation("/some"),
 			ExpectedMethod:       NewStringExpectation(http.MethodPut),

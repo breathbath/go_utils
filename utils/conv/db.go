@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const MYSQL_TIME_FORMAT = "2006-01-02 15:04:05"
+const MysqlTimeFormat = "2006-01-02 15:04:05"
 
 func ConvertFloat(input sql.NullFloat64) float64 {
 	var floatVal float64 = 0
@@ -30,7 +30,7 @@ func FormatTimePointer(input *time.Time) interface{} {
 		return nil
 	}
 
-	return input.Format(MYSQL_TIME_FORMAT)
+	return input.Format(MysqlTimeFormat)
 }
 
 func ConvertBool(input sql.NullBool) (output *bool) {

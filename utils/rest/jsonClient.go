@@ -1,10 +1,10 @@
 package rest
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	io2 "github.com/breathbath/go_utils/utils/io"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,47 +12,50 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	io2 "github.com/breathbath/go_utils/utils/io"
 )
 
 type RequestContext struct {
-	TargetUrl    string
+	TargetURL    string
 	Method       string
 	Body         string
 	Headers      map[string]string
-	ProxyUrl     string
+	ProxyURL     string
 	LoggingTopic string
 	IsVerbose    bool
 }
 
-func (rc RequestContext) String() string {
-	proxyUrl := ""
-	if rc.ProxyUrl != "" {
-		proxyUrl = ", proxy: " + rc.ProxyUrl
+func (rc *RequestContext) String() string {
+	proxyURL := ""
+	if rc.ProxyURL != "" {
+		proxyURL = ", proxy: " + rc.ProxyURL
 	}
 	return fmt.Sprintf(
 		"Request: method %s, url '%s', body '%s', headers: %v%s",
 		rc.Method,
-		rc.TargetUrl,
+		rc.TargetURL,
 		rc.Body,
 		rc.Headers,
-		proxyUrl,
+		proxyURL,
 	)
 }
 
-type JsonClient struct{}
+type JSONClient struct{}
 
-func NewJsonClient() JsonClient {
-	return JsonClient{}
+func NewJSONClient() *JSONClient {
+	return &JSONClient{}
 }
 
-func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *http.Response) {
-	req, err := http.NewRequest(
+func (jc *JSONClient) CallAPI(ctx context.Context, requestContext *RequestContext) ([]byte, *http.Response, error) {
+	req, err := http.NewRequestWithContext(
+		ctx,
 		requestContext.Method,
-		requestContext.TargetUrl,
+		requestContext.TargetURL,
 		strings.NewReader(requestContext.Body),
 	)
 	if err != nil {
-		return []byte{}, err, nil
+		return []byte{}, nil, err
 	}
 
 	for key, value := range requestContext.Headers {
@@ -66,12 +69,12 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 		ResponseHeaderTimeout: connectionTimeout,
 	}
 
-	if requestContext.ProxyUrl != "" {
-		proxyUrl, err := url.Parse(requestContext.ProxyUrl)
-		if err != nil {
-			return []byte{}, err, nil
+	if requestContext.ProxyURL != "" {
+		proxyURL, e := url.Parse(requestContext.ProxyURL)
+		if e != nil {
+			return []byte{}, nil, e
 		}
-		transport.Proxy = http.ProxyURL(proxyUrl)
+		transport.Proxy = http.ProxyURL(proxyURL)
 	}
 
 	client := http.Client{Transport: transport}
@@ -80,7 +83,7 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 		dump, _ := httputil.DumpRequest(req, true)
 		io2.OutputInfo(requestContext.LoggingTopic, "Input context: %s, raw request: %s", requestContext.String(), string(dump))
 	} else {
-		//hiding details here for security reasons (no sensitive data in logs)
+		// hiding details here for security reasons (no sensitive data in logs)
 		io2.OutputInfo(requestContext.LoggingTopic, "Calling api")
 	}
 
@@ -92,7 +95,7 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 				io2.OutputError(closeErr, requestContext.LoggingTopic, "")
 			}
 		}
-		return []byte{}, fmt.Errorf("Request failed with error: %v", err), resp
+		return []byte{}, resp, fmt.Errorf("request failed with error: %v", err)
 	}
 	defer func() {
 		closeErr := resp.Body.Close()
@@ -103,48 +106,48 @@ func (jc JsonClient) CallApi(requestContext RequestContext) ([]byte, error, *htt
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err == io.EOF {
-		return []byte{}, fmt.Errorf("Empty body in the response, status: %d", resp.StatusCode), resp
+		return []byte{}, resp, fmt.Errorf("empty body in the response, status: %d", resp.StatusCode)
 	}
 	if err != nil {
-		return []byte{}, fmt.Errorf("Reading of the request body failed with error: %v, status: %d", err, resp.StatusCode), resp
+		return []byte{}, resp, fmt.Errorf("reading of the request body failed with error: %v, status: %d", err, resp.StatusCode)
 	}
 
 	io2.OutputInfo(requestContext.LoggingTopic, "Got response: '%s', status code: '%d'", string(respBody), resp.StatusCode)
 
-	err = ValidateResponse(requestContext.TargetUrl, resp, respBody)
-	return respBody, err, resp
+	err = ValidateResponse(requestContext.TargetURL, resp, respBody)
+	return respBody, resp, err
 }
 
-func (jc JsonClient) Get(context RequestContext) ([]byte, error, *http.Response) {
-	context.Method = http.MethodGet
-	return jc.CallApi(context)
+func (jc *JSONClient) Get(ctx context.Context, req *RequestContext) ([]byte, *http.Response, error) {
+	req.Method = http.MethodGet
+	return jc.CallAPI(ctx, req)
 }
 
-func (jc JsonClient) Post(context RequestContext) ([]byte, error, *http.Response) {
-	context.Method = http.MethodPost
-	return jc.CallApi(context)
+func (jc *JSONClient) Post(ctx context.Context, req *RequestContext) ([]byte, *http.Response, error) {
+	req.Method = http.MethodPost
+	return jc.CallAPI(ctx, req)
 }
 
-func (jc JsonClient) ScanToTarget(context RequestContext, target interface{}) error {
-	body, err, _ := jc.Get(context)
+func (jc *JSONClient) ScanToTarget(ctx context.Context, req *RequestContext, target interface{}) error {
+	body, _, err := jc.Get(ctx, req)
 	if err != nil {
 		return err
 	}
 
 	if err := json.Unmarshal(body, target); err != nil {
-		err := fmt.Errorf("Cannot process response %s: %v", string(body), err)
-		return err
+		e := fmt.Errorf("cannot process response %s: %v", string(body), err)
+		return e
 	}
 
 	return nil
 }
 
-func (jc JsonClient) ScanToTargetRecoveringOnProxyFailure(context RequestContext, target interface{}) error {
-	err := jc.ScanToTarget(context, target)
-	if err != nil && context.ProxyUrl != "" {
+func (jc *JSONClient) ScanToTargetRecoveringOnProxyFailure(ctx context.Context, req *RequestContext, target interface{}) error {
+	err := jc.ScanToTarget(ctx, req, target)
+	if err != nil && req.ProxyURL != "" {
 		io2.OutputWarning("", "Request failure: %v. Will try to repeat without proxy", err)
-		context.ProxyUrl = ""
-		err = jc.ScanToTarget(context, target)
+		req.ProxyURL = ""
+		err = jc.ScanToTarget(ctx, req, target)
 	}
 
 	return err

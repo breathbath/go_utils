@@ -2,13 +2,14 @@ package errs
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFailOnErrorWithExistingError(t *testing.T) {
-	assert.PanicsWithValue(t, "Some err", func() {
-		err := errors.New("Some err")
+	assert.PanicsWithValue(t, "some err", func() {
+		err := errors.New("some err")
 		FailOnError(err)
 	})
 }

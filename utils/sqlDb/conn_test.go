@@ -3,26 +3,27 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/breathbath/go_utils/utils/connections"
 	testing2 "github.com/breathbath/go_utils/utils/testing"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestOpenConnection(t *testing.T) {
 	returnErr := true
-	fakeDb := FakeSqlDriver{ConnStr: "", ErrFuncProvider: func() error {
+	fakeDB := FakeSQLDriver{ConnStr: "", ErrFuncProvider: func() error {
 		if returnErr {
 			returnErr = false
-			return errors.New("First err")
+			return errors.New("first err")
 		}
 		return nil
 	}}
 
-	sql.Register("fake_driver_TestOpenConnection", &fakeDb)
+	sql.Register("fake_driver_TestOpenConnection", &fakeDB)
 
-	sqlX, err := NewDb("conn_str", "fake_driver_TestOpenConnection")
+	sqlX, err := NewDB("conn_str", "fake_driver_TestOpenConnection")
 	assert.NoError(t, err)
 
 	connections.WaitingConnectorIterativeDelayDuration = time.Microsecond
@@ -31,6 +32,6 @@ func TestOpenConnection(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	assert.Equal(t, "conn_str", fakeDb.ConnStr)
-	testing2.AssertLogText(t,"[ERROR] sql_db connection error: First err[INFO] Trying to reconnect to sql_db in 0 s", output)
+	assert.Equal(t, "conn_str", fakeDB.ConnStr)
+	testing2.AssertLogText(t, "[ERROR] sql_db connection error: first err[INFO] Trying to reconnect to sql_db in 0 s", output)
 }

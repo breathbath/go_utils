@@ -6,8 +6,8 @@ import (
 )
 
 type BadResponseCodeError struct {
-	url string
-	resp *http.Response
+	url      string
+	resp     *http.Response
 	respBody []byte
 }
 

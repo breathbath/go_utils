@@ -1,4 +1,4 @@
-//Package collections provides methods to operate on collections of values (structs/maps/arrays)
+// Package collections provides methods to operate on collections of values (structs/maps/arrays)
 package conv
 
 import (
@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-//ConvertStructToMap converts []string{"red", "blue", "red"} to map[string]bool{"red":true,"blue":true}
+// ConvertStructToMap converts []string{"red", "blue", "red"} to map[string]bool{"red":true,"blue":true}
 func ConvertStructToMap(input []string) map[string]bool {
 	output := map[string]bool{}
 	for _, inputItem := range input {
@@ -18,7 +18,7 @@ func ConvertStructToMap(input []string) map[string]bool {
 	return output
 }
 
-//ConvertStructToSyncMap converts []string{"red", "blue"} to sync.Map{"red":true,"blue":true}
+// ConvertStructToSyncMap converts []string{"red", "blue"} to sync.Map{"red":true,"blue":true}
 func ConvertStructToSyncMap(input []string) *sync.Map {
 	output := sync.Map{}
 	for _, inputItem := range input {
@@ -45,18 +45,18 @@ func ConvertStructToSyncMapWithCallback(input []string, callback func(inputItem 
 	return &output
 }
 
-//GetMapValueOrError returns error if map doesn't contain the provided key
+// GetMapValueOrError returns error if map doesn't contain the provided key
 func GetMapValueOrError(input map[string]string, key string) (string, error) {
 	v, ok := input[key]
 	if !ok {
-		return "", fmt.Errorf("No value for key '%s' in the map", key)
+		return "", fmt.Errorf("no value for key '%s' in the map", key)
 	}
 
 	return v, nil
 }
 
-//ExtractMapValues converts map[string]interface{}{"Bob":"Bob", "Alice":"Alice", "John":"John"}
-//by filter values []interface{}{"Bob","Alice"} to []interface{}{"Bob", "Alice", "John"}
+// ExtractMapValues converts map[string]interface{}{"Bob":"Bob", "Alice":"Alice", "John":"John"}
+// by filter values []interface{}{"Bob","Alice"} to []interface{}{"Bob", "Alice", "John"}
 func ExtractMapValues(inputMap map[string]interface{}) []interface{} {
 	result := []interface{}{}
 	for _, val := range inputMap {
@@ -66,8 +66,8 @@ func ExtractMapValues(inputMap map[string]interface{}) []interface{} {
 	return result
 }
 
-//JoinMap converts map[string]string{"name":"Bob","color":"red","size","big"} to
-//2 strings "name,color,size" and "Bob,red,big" if "," is provided as separator
+// JoinMap converts map[string]string{"name":"Bob","color":"red","size","big"} to
+// 2 strings "name,color,size" and "Bob,red,big" if "," is provided as separator
 func JoinMap(inputMap map[string]string, sep string) (keysStr, valuesStr string) {
 	keys, values := "", ""
 	for key, val := range inputMap {
@@ -77,8 +77,8 @@ func JoinMap(inputMap map[string]string, sep string) (keysStr, valuesStr string)
 	return strings.TrimRight(keys, sep), strings.TrimRight(values, sep)
 }
 
-//MapToSlice converts map[string]string{"name":"Bob","color":"red","size","big"} to
-//keys and values slices like []string{"name","color","size"} and []string{"Bob","red","big"}
+// MapToSlice converts map[string]string{"name":"Bob","color":"red","size","big"} to
+// keys and values slices like []string{"name","color","size"} and []string{"Bob","red","big"}
 func MapToSlices(inputMap map[string]string) (keys, values []string) {
 	for key, val := range inputMap {
 		keys = append(keys, key)
@@ -88,7 +88,7 @@ func MapToSlices(inputMap map[string]string) (keys, values []string) {
 	return
 }
 
-//ConvertSyncMapToMap converts sync.Map to map[string]interface{}
+// ConvertSyncMapToMap converts sync.Map to map[string]interface{}
 func ConvertSyncMapToMap(input *sync.Map) (output map[string]interface{}) {
 	output = map[string]interface{}{}
 	input.Range(func(key, value interface{}) bool {
@@ -99,7 +99,7 @@ func ConvertSyncMapToMap(input *sync.Map) (output map[string]interface{}) {
 	return
 }
 
-//ConvertMapToSyncMap converts map[string]interface{} to sync.Map
+// ConvertMapToSyncMap converts map[string]interface{} to sync.Map
 func ConvertMapToSyncMap(input map[string]interface{}) (output *sync.Map) {
 	output = &sync.Map{}
 	for k, val := range input {
@@ -109,13 +109,13 @@ func ConvertMapToSyncMap(input map[string]interface{}) (output *sync.Map) {
 	return
 }
 
-//MarshalSyncMap converts sync.Map to a json formatted byte string
+// MarshalSyncMap converts sync.Map to a json formatted byte string
 func MarshalSyncMap(input *sync.Map) (data []byte, err error) {
 	simpleMap := ConvertSyncMapToMap(input)
 	return json.Marshal(simpleMap)
 }
 
-//UnMarshalSyncMap converts json formatted byte string to sync.Map
+// UnMarshalSyncMap converts json formatted byte string to sync.Map
 func UnMarshalSyncMap(data []byte) (syncMap *sync.Map, err error) {
 	simpleMap := make(map[string]interface{})
 	err = json.Unmarshal(data, &simpleMap)

@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type StringOutputExpectation struct {
@@ -75,13 +76,13 @@ func TestNullStringJsonOutputConversion(t *testing.T) {
 			InputStr:        `[1,2]`,
 			ExpectedResult:  "",
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert '[1,2]' to a valid string value",
+			ExpectedError:   "cannot convert '[1,2]' to a valid string value",
 		},
 		{
 			InputStr:        `{"a":12}`,
 			ExpectedResult:  "",
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert '{\"a\":12}' to a valid string value",
+			ExpectedError:   "cannot convert '{\"a\":12}' to a valid string value",
 		},
 	}
 

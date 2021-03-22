@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const REQUEST_TIME_FORMAT = "2006-01-02T15-04-05"
+const RequestTimeFormat = "2006-01-02T15-04-05"
 
 func GetRequestValueString(req *http.Request, key, defaultValue string) string {
 	val, ok := req.URL.Query()[key]
@@ -35,10 +35,10 @@ func GetRequestValueInt(req *http.Request, key string, defaultValue int64) int64
 func GetRequestValueTimeWithError(req *http.Request, key string) (time.Time, error) {
 	val, ok := req.URL.Query()[key]
 	if !ok {
-		return time.Time{}, fmt.Errorf("No time value provided for key %s", key)
+		return time.Time{}, fmt.Errorf("no time value provided for key %s", key)
 	}
 
-	timeResult, err := time.Parse(REQUEST_TIME_FORMAT, val[0])
+	timeResult, err := time.Parse(RequestTimeFormat, val[0])
 	if err != nil {
 		return time.Time{}, err
 	}

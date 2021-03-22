@@ -37,7 +37,7 @@ func (ns *NullString) UnmarshalJSON(input []byte) error {
 	}
 
 	if convErrStr != nil {
-		return fmt.Errorf("Cannot convert '%s' to a valid string value", string(input))
+		return fmt.Errorf("cannot convert '%s' to a valid string value", string(input))
 	}
 
 	ns.String = targetStr

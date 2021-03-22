@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var exampleStringNumber StringNumber
@@ -34,7 +35,7 @@ func TestStringNumberUnMarshalJSON(t *testing.T) {
 	assert.Equal(t, StringNumber{}, someStringNumber)
 
 	err = someStringNumber.UnmarshalJSON([]byte("not_number"))
-	assert.EqualError(t, err, "Cannot unmarshal 'not_number' into a number type")
+	assert.EqualError(t, err, "cannot unmarshal 'not_number' into a number type")
 }
 
 func TestStringNumberStringer(t *testing.T) {

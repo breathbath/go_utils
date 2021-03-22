@@ -3,11 +3,12 @@ package fs
 import (
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReadNonExistingCsvFile(t *testing.T) {
@@ -20,11 +21,11 @@ func TestReadNonExistingCsvFile(t *testing.T) {
 		1,
 	)
 
-	assert.EqualError(t, err, "No file found at non_existing.csv")
+	assert.EqualError(t, err, "no file found at non_existing.csv")
 }
 
 func TestReadCsvFileWithBadPermissions(t *testing.T) {
-	err := ioutil.WriteFile("testFileBadPermission.csv", []byte(""), 0644)
+	err := ioutil.WriteFile("testFileBadPermission.csv", []byte(""), 0600)
 	assert.NoError(t, err)
 
 	cmd := exec.Command("chmod", "000", "testFileBadPermission.csv")
@@ -49,7 +50,7 @@ func TestReadCsvFileWithBadPermissions(t *testing.T) {
 
 func TestReadExistingCsvFile(t *testing.T) {
 	csvFileRaw := []byte("col1,col2,col3\n1,2,3\n4,5,6\n7,8,9")
-	err := ioutil.WriteFile("testFile.csv", csvFileRaw, 0644)
+	err := ioutil.WriteFile("testFile.csv", csvFileRaw, 0600)
 	assert.NoError(t, err)
 
 	allLines := map[int][]string{}
@@ -80,7 +81,7 @@ func TestReadFaultyCsvFile(t *testing.T) {
 	testWrongCsvFile(
 		t,
 		"col1,col2,col3\n1",
-		"Failed to parse csv file testFaultyFile.csv at line 2, reason: record on line 2: wrong number of fields",
+		"failed to parse csv file testFaultyFile.csv at line 2, reason: record on line 2: wrong number of fields",
 		nil,
 		3,
 	)
@@ -88,7 +89,7 @@ func TestReadFaultyCsvFile(t *testing.T) {
 	testWrongCsvFile(
 		t,
 		"col1,col2,col3\n1,2,3",
-		"Unexpected columns count 3 on line 1: expected count is 1",
+		"unexpected columns count 3 on line 1: expected count is 1",
 		nil,
 		1,
 	)
@@ -96,8 +97,8 @@ func TestReadFaultyCsvFile(t *testing.T) {
 	testWrongCsvFile(
 		t,
 		"col1,col2,col3\n1,2,3",
-		"Some error",
-		errors.New("Some error"),
+		"some error",
+		errors.New("some error"),
 		3,
 	)
 }
@@ -105,7 +106,7 @@ func TestReadFaultyCsvFile(t *testing.T) {
 func testWrongCsvFile(t *testing.T, data, expectedError string, lineError error, expectedColsCount int) {
 	t.Helper()
 
-	err := ioutil.WriteFile("testFaultyFile.csv", []byte(data), 0644)
+	err := ioutil.WriteFile("testFaultyFile.csv", []byte(data), 0600)
 	assert.NoError(t, err)
 
 	allLines := map[int][]string{}

@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type Int64OutputExpectation struct {
@@ -45,7 +46,7 @@ func TestNullInt64JsonOutputConversion(t *testing.T) {
 			InputStr:        `1.2`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert '1.2' to a valid int value",
+			ExpectedError:   "cannot convert '1.2' to a valid int value",
 		},
 		{
 			InputStr:        `0`,
@@ -63,19 +64,19 @@ func TestNullInt64JsonOutputConversion(t *testing.T) {
 			InputStr:        `""`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert '' to a valid int value",
+			ExpectedError:   "cannot convert '' to a valid int value",
 		},
 		{
 			InputStr:        `" "`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert ' ' to a valid int value",
+			ExpectedError:   "cannot convert ' ' to a valid int value",
 		},
 		{
 			InputStr:        `"dfjaslfa"`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert 'dfjaslfa' to a valid int value",
+			ExpectedError:   "cannot convert 'dfjaslfa' to a valid int value",
 		},
 	}
 

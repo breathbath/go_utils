@@ -1,9 +1,10 @@
 package testing
 
 import (
-	"github.com/stretchr/testify/assert"
 	"log"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAssertLogText(t *testing.T) {

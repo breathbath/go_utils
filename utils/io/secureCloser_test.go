@@ -2,9 +2,10 @@ package io
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type mockCloser struct {

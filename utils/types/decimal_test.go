@@ -1,9 +1,10 @@
 package types
 
 import (
+	"testing"
+
 	coreDecimal "github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestDecimalFromStringCreation(t *testing.T) {
@@ -138,7 +139,7 @@ type RoundingTestSet struct {
 }
 
 func TestToPercentConversion(t *testing.T) {
-	testingSets := []RoundingTestSet {
+	testingSets := []RoundingTestSet{
 		{inputNumber: "0.123", places: 2, expectedResult: "12.3"},
 		{inputNumber: "1.123", places: 2, expectedResult: "112.3"},
 		{inputNumber: "0.123456", places: -1, expectedResult: "12.3456"},
@@ -158,7 +159,7 @@ func TestToPercentConversion(t *testing.T) {
 }
 
 func TestRounding(t *testing.T) {
-	testingSets := []RoundingTestSet {
+	testingSets := []RoundingTestSet{
 		{inputNumber: "0.123", places: 2, expectedResult: "0.12"},
 		{inputNumber: "1.125", places: 2, expectedResult: "1.13"},
 		{inputNumber: "0.123456", places: -1, expectedResult: "0.123456"},

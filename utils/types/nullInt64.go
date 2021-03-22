@@ -38,12 +38,12 @@ func (ni *NullInt64) UnmarshalJSON(input []byte) error {
 	}
 
 	if convErrStr != nil {
-		return fmt.Errorf("Cannot convert '%s' to a valid int value", string(input))
+		return fmt.Errorf("cannot convert '%s' to a valid int value", string(input))
 	}
 
 	iVal, convErrInt := strconv.ParseInt(targetStr, 10, 64)
 	if convErrInt != nil {
-		return fmt.Errorf("Cannot convert '%s' to a valid int value", targetStr)
+		return fmt.Errorf("cannot convert '%s' to a valid int value", targetStr)
 	}
 
 	ni.Int64 = iVal

@@ -38,12 +38,12 @@ func (nf *NullFloat64) UnmarshalJSON(input []byte) error {
 	}
 
 	if convErrStr != nil {
-		return fmt.Errorf("Cannot convert '%s' to a valid float value", string(input))
+		return fmt.Errorf("cannot convert '%s' to a valid float value", string(input))
 	}
 
 	fVal, convErrFloat := strconv.ParseFloat(targetStr, 64)
 	if convErrFloat != nil {
-		return fmt.Errorf("Cannot convert '%s' to a valid float value", targetStr)
+		return fmt.Errorf("cannot convert '%s' to a valid float value", targetStr)
 	}
 
 	nf.Float64 = fVal

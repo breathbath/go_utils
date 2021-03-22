@@ -1,10 +1,11 @@
 package types
 
 import (
-	"github.com/go-sql-driver/mysql"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestToJsonConversion(t *testing.T) {

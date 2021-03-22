@@ -2,8 +2,9 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/go-sql-driver/mysql"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 type NullTime struct {
@@ -19,7 +20,7 @@ func (nt NullTime) MarshalJSON() ([]byte, error) {
 
 func (nt *NullTime) UnmarshalJSON(input []byte) error {
 	t := time.Time{}
-	if string(input) == "null" || string(input) == `""` {
+	if string(input) == NullableStr || string(input) == EmptyStr {
 		nt.Valid = false
 		return nil
 	}
@@ -27,7 +28,7 @@ func (nt *NullTime) UnmarshalJSON(input []byte) error {
 	err := t.UnmarshalJSON(input)
 
 	nt.Time = t
-	//will be not valid for all null dates, all invalid date values should be considered as errors
+	// will be not valid for all null dates, all invalid date values should be considered as errors
 	nt.Valid = string(input) != "null"
 
 	return err

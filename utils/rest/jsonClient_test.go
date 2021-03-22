@@ -1,23 +1,25 @@
 package rest
 
 import (
-	http2 "github.com/breathbath/go_utils/utils/http"
-	"github.com/breathbath/go_utils/utils/io"
-	"github.com/stretchr/testify/assert"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
+
+	http2 "github.com/breathbath/go_utils/utils/http"
+	"github.com/breathbath/go_utils/utils/io"
+	"github.com/stretchr/testify/assert"
 )
 
 type RequestMock struct {
 	Method     string
-	Url        *url.URL
+	URL        *url.URL
 	Header     http.Header
 	Body       string
-	RequestUri string
+	RequestURI string
 }
 
 func NewRequestMock(r *http.Request) RequestMock {
@@ -27,11 +29,11 @@ func NewRequestMock(r *http.Request) RequestMock {
 	}
 
 	return RequestMock{
-		Method: r.Method,
-		Url:    r.URL,
-		Header: r.Header,
-		Body:   string(body),
-		RequestUri: r.RequestURI,
+		Method:     r.Method,
+		URL:        r.URL,
+		Header:     r.Header,
+		Body:       string(body),
+		RequestURI: r.RequestURI,
 	}
 }
 
@@ -44,12 +46,12 @@ func init() {
 }
 
 func TestRequestContextToString(t *testing.T) {
-	rc := RequestContext{
-		TargetUrl:    "ya.ru",
+	rc := &RequestContext{
+		TargetURL:    "ya.ru",
 		Method:       "GET",
 		Body:         "Lala",
 		Headers:      map[string]string{"head1": "headVal1"},
-		ProxyUrl:     "someProx.ru",
+		ProxyURL:     "someProx.ru",
 		LoggingTopic: "lala",
 		IsVerbose:    true,
 	}
@@ -82,14 +84,14 @@ func TestJsonClient(t *testing.T) {
 func testHeaders(t *testing.T) {
 	requests = []RequestMock{}
 
-	rc := RequestContext{
-		TargetUrl: serverAddr,
+	rc := &RequestContext{
+		TargetURL: serverAddr,
 		Method:    "GET",
 		Headers:   map[string]string{"head1": "headVal1"},
 	}
 
-	cl := NewJsonClient()
-	_, err, _ := cl.Get(rc)
+	cl := NewJSONClient()
+	_, _, err := cl.Get(context.Background(), rc)
 	assert.NoError(t, err)
 
 	assert.Len(t, requests, 1)
@@ -101,13 +103,13 @@ func testHeaders(t *testing.T) {
 func testGet(t *testing.T) {
 	requests = []RequestMock{}
 
-	cl := NewJsonClient()
-	rc := RequestContext{
-		TargetUrl: serverAddr,
+	cl := NewJSONClient()
+	rc := &RequestContext{
+		TargetURL: serverAddr,
 		Method:    "GET",
 	}
 
-	body, err, resp := cl.Get(rc)
+	body, resp, err := cl.Get(context.Background(), rc)
 	assert.NoError(t, err)
 	if err != nil {
 		return
@@ -119,14 +121,14 @@ func testGet(t *testing.T) {
 func testPost(t *testing.T) {
 	requests = []RequestMock{}
 
-	cl := NewJsonClient()
-	rc := RequestContext{
-		TargetUrl: serverAddr,
+	cl := NewJSONClient()
+	rc := &RequestContext{
+		TargetURL: serverAddr,
 		Method:    "POST",
 		Body:      "Accept me please",
 	}
 
-	body, err, resp := cl.Post(rc)
+	body, resp, err := cl.Post(context.Background(), rc)
 	assert.NoError(t, err)
 	if err != nil {
 		return
@@ -147,27 +149,27 @@ func testScan(t *testing.T) {
 		Key string `json:"key"`
 	}{}
 
-	rc := RequestContext{
-		TargetUrl: serverAddr,
+	rc := &RequestContext{
+		TargetURL: serverAddr,
 		Method:    "GET",
 	}
 
-	cl := NewJsonClient()
-	err := cl.ScanToTarget(rc, &item)
+	cl := NewJSONClient()
+	err := cl.ScanToTarget(context.Background(), rc, &item)
 	assert.NoError(t, err)
 	assert.Equal(t, "val", item.Key)
 
 	wrongItem := struct {
 		Key int `json:"key"`
 	}{}
-	err = cl.ScanToTarget(rc, &wrongItem)
-	assert.EqualError(t, err, "Cannot process response {\"key\":\"val\"}: json: cannot unmarshal string into Go struct field .key of type int")
+	err = cl.ScanToTarget(context.Background(), rc, &wrongItem)
+	assert.EqualError(t, err, "cannot process response {\"key\":\"val\"}: json: cannot unmarshal string into Go struct field .key of type int")
 
-	requestWithExpectedErrResp := RequestContext{
-		TargetUrl: serverAddr + "?err=400",
+	requestWithExpectedErrResp := &RequestContext{
+		TargetURL: serverAddr + "?err=400",
 		Method:    "GET",
 	}
-	err = cl.ScanToTarget(requestWithExpectedErrResp, &item)
+	err = cl.ScanToTarget(context.Background(), requestWithExpectedErrResp, &item)
 	assert.IsType(t, BadResponseCodeError{}, err)
 
 	badRespErr := err.(BadResponseCodeError)
@@ -175,22 +177,22 @@ func testScan(t *testing.T) {
 }
 
 func testInvalidMethod(t *testing.T) {
-	rc := RequestContext{
-		TargetUrl: serverAddr,
+	rc := &RequestContext{
+		TargetURL: serverAddr,
 		Method:    "мама",
 	}
-	cl := NewJsonClient()
-	_, err, _ := cl.CallApi(rc)
+	cl := NewJSONClient()
+	_, _, err := cl.CallAPI(context.Background(), rc)
 	assert.EqualError(t, err, `net/http: invalid method "мама"`)
 }
 
 func testServerErrors(t *testing.T) {
-	rc := RequestContext{
-		TargetUrl: serverAddr + "?err=500&body=lals",
+	rc := &RequestContext{
+		TargetURL: serverAddr + "?err=500&body=lals",
 		Method:    "GET",
 	}
-	cl := NewJsonClient()
-	_, err, _ := cl.CallApi(rc)
+	cl := NewJSONClient()
+	_, _, err := cl.CallAPI(context.Background(), rc)
 	assert.IsType(t, BadResponseCodeError{}, err)
 
 	badRespErr := err.(BadResponseCodeError)
@@ -199,43 +201,44 @@ func testServerErrors(t *testing.T) {
 }
 
 func testInvalidAddress(t *testing.T) {
-	rc := RequestContext{
-		TargetUrl: "",
+	rc := &RequestContext{
+		TargetURL: "",
 		Method:    "GET",
 	}
-	cl := NewJsonClient()
-	_, err, _ := cl.Get(rc)
-	assert.Contains(t, err.Error(), `Request failed with error`)
+	cl := NewJSONClient()
+	_, _, err := cl.Get(context.Background(), rc)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), `request failed with error`)
 }
 
 func testProxy(t *testing.T) {
 	requests = []RequestMock{}
 
-	rc := RequestContext{
-		TargetUrl: serverAddr,
+	rc := &RequestContext{
+		TargetURL: serverAddr,
 		Method:    "GET",
-		ProxyUrl:  proxyServerAddr,
+		ProxyURL:  proxyServerAddr,
 	}
-	cl := NewJsonClient()
-	_, err, _ := cl.Get(rc)
+	cl := NewJSONClient()
+	_, _, err := cl.Get(context.Background(), rc)
 	assert.NoError(t, err)
 
 	assert.Len(t, requests, 1)
 	req := requests[0]
 
-	assert.Equal(t, serverAddr, strings.Trim(req.RequestUri, "/"))
-	assert.NotEqual(t, proxyServerAddr, strings.Trim(req.RequestUri, "/"))
+	assert.Equal(t, serverAddr, strings.Trim(req.RequestURI, "/"))
+	assert.NotEqual(t, proxyServerAddr, strings.Trim(req.RequestURI, "/"))
 
-	rc2 := RequestContext{
-		TargetUrl: serverAddr,
+	rc2 := &RequestContext{
+		TargetURL: serverAddr,
 		Method:    "GET",
-		ProxyUrl:  ":::",
+		ProxyURL:  ":::",
 	}
 
 	item := struct {
 		Key string `json:"key"`
 	}{}
-	err = cl.ScanToTargetRecoveringOnProxyFailure(rc2, &item)
+	err = cl.ScanToTargetRecoveringOnProxyFailure(context.Background(), rc2, &item)
 	assert.NoError(t, err)
 }
 

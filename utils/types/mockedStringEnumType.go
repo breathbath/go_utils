@@ -2,6 +2,7 @@ package types
 
 import (
 	"database/sql/driver"
+
 	"github.com/breathbath/go_utils/utils/conv"
 )
 
@@ -20,13 +21,13 @@ func init() {
 	SalutationMap = map[int]string{
 		int(MS):  "Miss",
 		int(MRS): "Missus",
-		int(DR): "Doctor",
-		int(MR): "Mister",
+		int(DR):  "Doctor",
+		int(MR):  "Mister",
 	}
 }
 
 func (s Salutation) MarshalJSON() ([]byte, error) {
-	return conv.StringerToJson(s), nil
+	return conv.StringerToJSON(s), nil
 }
 
 func (s Salutation) String() string {
@@ -62,4 +63,3 @@ func (s *Salutation) Scan(value interface{}) error {
 func (s Salutation) Value() (driver.Value, error) {
 	return s.String(), nil
 }
-

@@ -1,67 +1,67 @@
 package url
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUrlBuilding(t *testing.T) {
-	testCases := []struct{
+	testCases := []struct {
 		partsToGive []string
-		expectedUrl string
-	} {
+		expectedURL string
+	}{
 		{
 			partsToGive: []string{
 				"one",
 				"two",
 			},
-			expectedUrl: "one/two",
+			expectedURL: "one/two",
 		},
 		{
 			partsToGive: []string{
 				"http://ya.ru///",
 				"/two",
 			},
-			expectedUrl: "http://ya.ru/two",
+			expectedURL: "http://ya.ru/two",
 		},
 		{
 			partsToGive: []string{
 				"/one/",
 				"/two/",
 			},
-			expectedUrl: "/one/two",
+			expectedURL: "/one/two",
 		},
 		{
 			partsToGive: []string{
 				"/o//ne/",
 				"/two/",
 			},
-			expectedUrl: "/o//ne/two",
+			expectedURL: "/o//ne/two",
 		},
 		{
 			partsToGive: []string{
 				"some",
 			},
-			expectedUrl: "some",
+			expectedURL: "some",
 		},
 		{
 			partsToGive: []string{
 				"some",
 				"",
 			},
-			expectedUrl: "some",
+			expectedURL: "some",
 		},
 		{
 			partsToGive: []string{
 				"",
 			},
-			expectedUrl: "",
+			expectedURL: "",
 		},
 	}
 
 	for _, testCase := range testCases {
-		actualUrl := JoinURL(testCase.partsToGive...)
-		assert.Equal(t, testCase.expectedUrl, actualUrl)
+		actualURL := JoinURL(testCase.partsToGive...)
+		assert.Equal(t, testCase.expectedURL, actualURL)
 	}
 }
-

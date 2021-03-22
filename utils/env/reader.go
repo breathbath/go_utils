@@ -2,9 +2,10 @@ package env
 
 import (
 	"fmt"
-	"github.com/breathbath/go_utils/utils/errs"
 	"os"
 	"strconv"
+
+	"github.com/breathbath/go_utils/utils/errs"
 )
 
 func ReadEnv(name, defaultVal string) string {
@@ -58,10 +59,7 @@ func ReadEnvBool(name string, defaultVal bool) bool {
 		name,
 		defaultVal,
 		func(val string) interface{} {
-			if val == "true" {
-				return true
-			}
-			return false
+			return val == "true"
 		},
 	).(bool)
 }
@@ -83,7 +81,7 @@ func ReadEnvFloat(name string, defaultVal float64) float64 {
 func ReadEnvOrError(name string) (string, error) {
 	val := ReadEnv(name, "")
 	if val == "" {
-		return "", fmt.Errorf("Required env variable '%s' is not set", name)
+		return "", fmt.Errorf("required env variable '%s' is not set", name)
 	}
 
 	return val, nil

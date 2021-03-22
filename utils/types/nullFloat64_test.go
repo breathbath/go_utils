@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type Float64OutputExpectation struct {
@@ -97,31 +98,31 @@ func TestJsonToNullFloat64Conversion(t *testing.T) {
 			InputStr:        `""`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert '' to a valid float value",
+			ExpectedError:   "cannot convert '' to a valid float value",
 		},
 		{
 			InputStr:        `" "`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert ' ' to a valid float value",
+			ExpectedError:   "cannot convert ' ' to a valid float value",
 		},
 		{
 			InputStr:        `"dafjldfja"`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert 'dafjldfja' to a valid float value",
+			ExpectedError:   "cannot convert 'dafjldfja' to a valid float value",
 		},
 		{
 			InputStr:        `[1,2]`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert '[1,2]' to a valid float value",
+			ExpectedError:   "cannot convert '[1,2]' to a valid float value",
 		},
 		{
 			InputStr:        `{"a":1}`,
 			ExpectedResult:  0,
 			ExpectedIsValid: false,
-			ExpectedError:   "Cannot convert '{\"a\":1}' to a valid float value",
+			ExpectedError:   "cannot convert '{\"a\":1}' to a valid float value",
 		},
 	}
 

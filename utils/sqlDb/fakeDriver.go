@@ -98,13 +98,13 @@ func (fx *FakeFx) Rollback() error {
 	return nil
 }
 
-type FakeSqlDriver struct {
+type FakeSQLDriver struct {
 	ConnStr         string
 	ErrFuncProvider func() error
 	Conn            *FakeConn
 }
 
-func NewFakeSqlDriver() *FakeSqlDriver {
+func NewFakeSQLDriver() *FakeSQLDriver {
 	rows := &RowsData{
 		Cols:     []string{},
 		CurRow:   0,
@@ -126,7 +126,7 @@ func NewFakeSqlDriver() *FakeSqlDriver {
 		false,
 		nil,
 	}
-	drvr := &FakeSqlDriver{
+	drvr := &FakeSQLDriver{
 		ConnStr: "",
 		ErrFuncProvider: func() error {
 			return nil
@@ -137,7 +137,7 @@ func NewFakeSqlDriver() *FakeSqlDriver {
 	return drvr
 }
 
-func (fsq *FakeSqlDriver) Open(connStr string) (driver.Conn, error) {
+func (fsq *FakeSQLDriver) Open(connStr string) (driver.Conn, error) {
 	fsq.ConnStr = connStr
 
 	return fsq.Conn, fsq.ErrFuncProvider()

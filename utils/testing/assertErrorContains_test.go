@@ -2,12 +2,13 @@ package testing
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAssertErrorContains(t *testing.T) {
-	actualError := errors.New("Some big error")
+	actualError := errors.New("some big error")
 
 	localT := &testing.T{}
 

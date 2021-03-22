@@ -2,16 +2,18 @@ package math
 
 import (
 	"fmt"
-	"github.com/breathbath/go_utils/utils/conv"
 	"math"
-	"math/rand"
 	"strings"
-	"time"
+
+	"github.com/breathbath/go_utils/utils/conv"
 )
 
-func Round(f float64, places float64) float64 {
-	shift := math.Pow(10, places)
-	return math.Floor(f*shift+.5) / shift
+const DefaultRoundingBase = 10
+const DefaultRoundingPlaces = .5
+
+func Round(f, places float64) float64 {
+	shift := math.Pow(DefaultRoundingBase, places)
+	return math.Floor(f*shift+DefaultRoundingPlaces) / shift
 }
 
 func CountDecimalPlaces(input float64) int {
@@ -23,14 +25,7 @@ func CountDecimalPlaces(input float64) int {
 	return len([]rune(splitNumber[1]))
 }
 
-func RandInt(limit int64) int64 {
-	limitInt := int(limit)
-	rand.Seed(time.Now().UnixNano())
-
-	return int64(rand.Intn(limitInt))
-}
-
-func CountDigits(input int64) (int64) {
+func CountDigits(input int64) int64 {
 	strNumb := fmt.Sprintf("%d", input)
 	strLen := int64(len(strNumb))
 	if input < 0 {

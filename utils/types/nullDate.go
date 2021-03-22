@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+const NullableStr = "null"
+const EmptyStr = `""`
+
 type NullDate struct {
 	NullTime
 }
@@ -21,17 +24,17 @@ func (nd NullDate) MarshalJSON() ([]byte, error) {
 }
 
 func (nd *NullDate) UnmarshalJSON(input []byte) error {
-	t := time.Time{}
-	if string(input) == "null" || string(input) == `""` {
+	if string(input) == NullableStr || string(input) == EmptyStr {
 		nd.Valid = false
 		return nil
 	}
 
 	var err error
+	var t time.Time
 	t, err = time.Parse(`"2006-01-02"`, string(input))
 
 	nd.Time = t
-	nd.Valid = string(input) != "null"
+	nd.Valid = string(input) != NullableStr
 
 	return err
 }

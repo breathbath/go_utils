@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStringSetAdding(t *testing.T) {
@@ -29,10 +30,10 @@ func TestStringSetToStringsConversion(t *testing.T) {
 }
 
 func TestStringSetUnMarshalJson(t *testing.T) {
-	ssJson := []byte(`["one","two"]`)
+	ssJSON := []byte(`["one","two"]`)
 
 	providedSs := &StringSet{}
-	err := providedSs.UnmarshalJSON(ssJson)
+	err := providedSs.UnmarshalJSON(ssJSON)
 	assert.NoError(t, err)
 
 	expectedSs := &StringSet{"one", "two"}
@@ -63,7 +64,7 @@ func TestStringSetScan(t *testing.T) {
 	assert.EqualValues(t, &StringSet{"one", "two"}, providedSs)
 
 	err = providedSs.Scan(1)
-	assert.EqualError(t, err, "Unknown value type for ValueSet: 1")
+	assert.EqualError(t, err, "unknown value type for ValueSet: 1")
 }
 
 func TestStringSetValueConversion(t *testing.T) {

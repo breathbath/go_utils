@@ -30,7 +30,7 @@ func (sn *StringNumber) UnmarshalJSON(input []byte) error {
 		return nil
 	}
 
-	return fmt.Errorf("Cannot unmarshal '%v' into a number type", tempNumber)
+	return fmt.Errorf("cannot unmarshal '%v' into a number type", tempNumber)
 }
 
 func (sn StringNumber) String() string {

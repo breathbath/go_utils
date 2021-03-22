@@ -25,7 +25,7 @@ const (
 	SeverityWarning = "WARNING"
 )
 
-type DefaultLogger struct {}
+type DefaultLogger struct{}
 
 func (dl DefaultLogger) OutputMessageType(messageType, topic, msg string, args ...interface{}) {
 	finalMsg := msg
@@ -83,7 +83,7 @@ func OutputInfo(topic, msg string, args ...interface{}) {
 	OutputMessageType(SeverityInfo, topic, msg, args...)
 }
 
-//OutputMessageType shows a message as [{messageType}] {message} [{topic}]
+// OutputMessageType shows a message as [{messageType}] {message} [{topic}]
 func OutputMessageType(messageType, topic, msg string, args ...interface{}) {
 	if logger == nil {
 		logger = DefaultLogger{}
@@ -104,12 +104,12 @@ func GenerateMessage(eventType, message, topic string) string {
 	return fmt.Sprintf("[%s] %s [%s]", eventType, message, topic)
 }
 
-//OutputSingleLine is deprecated should be used in internal outputs
+// OutputSingleLine is deprecated should be used in internal outputs
 func OutputSingleLine(message string, args ...interface{}) {
 	OutputInfo("", message, args...)
 }
 
-//OutputSingleLineWithTopic is deprecated should be used in internal outputs
+// OutputSingleLineWithTopic is deprecated should be used in internal outputs
 func OutputSingleLineWithTopic(topic, message string, args ...interface{}) {
 	OutputInfo(topic, message, args...)
 }

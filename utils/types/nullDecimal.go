@@ -20,13 +20,13 @@ func (nd NullDecimal) MarshalJSON() ([]byte, error) {
 func (nd *NullDecimal) Scan(value interface{}) (err error) {
 	isValid := true
 
-	switch value.(type) {
+	switch val := value.(type) {
 	case nil:
 		isValid = false
 	case []byte:
-		isValid = string(value.([]byte)) != ""
+		isValid = string(val) != ""
 	case string:
-		isValid = value.(string) != ""
+		isValid = val != ""
 	}
 
 	if !isValid {
@@ -51,8 +51,8 @@ func (nd *NullDecimal) UnmarshalJSON(input []byte) error {
 	err := d.UnmarshalJSON(input)
 
 	nd.DecimalValue = d
-	//will be not valid for all null values, all invalid decimal values should be considered as errors
-	nd.Valid = string(input) != "null"
+	// will be not valid for all null values, all invalid decimal values should be considered as errors
+	nd.Valid = string(input) != NullableStr
 
 	return err
 }

@@ -8,8 +8,8 @@ import (
 // This example converts struct to sync map with additional applying of callback function to modify
 // and filter elements
 func ExampleConvertStructToSyncMapWithCallback() {
-	//Want to have unique map of file names without extension and without '.' and '..'
-	//something like sync.Map{"file":true}
+	// Want to have unique map of file names without extension and without '.' and '..'
+	// something like sync.Map{"file":true}
 	collectedFileNames := []string{".", "..", "file.txt", "file.txt"}
 	resultMap := ConvertStructToSyncMapWithCallback(
 		collectedFileNames,

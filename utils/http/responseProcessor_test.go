@@ -1,9 +1,10 @@
 package http
 
 import (
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetResponseStatusCode(t *testing.T) {

@@ -1,8 +1,9 @@
 package conv
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type MockStruct struct{}
@@ -13,6 +14,6 @@ func (ms MockStruct) String() string {
 
 func TestStringerToJson(t *testing.T) {
 	ms := MockStruct{}
-	output := StringerToJson(ms)
+	output := StringerToJSON(ms)
 	assert.Equal(t, `"mockStruct"`, string(output))
 }

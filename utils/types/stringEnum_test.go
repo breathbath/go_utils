@@ -2,8 +2,9 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertEnumToString(t *testing.T) {
@@ -18,7 +19,7 @@ func TestConvertEnumToString(t *testing.T) {
 func TestConvertStructWithEnumToJson(t *testing.T) {
 	person := Person{
 		Salutation: MR,
-		Name: "Dow Jones",
+		Name:       "Dow Jones",
 	}
 
 	jsonPerson, err := json.Marshal(person)
@@ -37,7 +38,7 @@ func TestConvertStructWithEnumFromJson(t *testing.T) {
 
 	expectedPerson := Person{
 		Salutation: MR,
-		Name: "Dow Jones",
+		Name:       "Dow Jones",
 	}
 
 	assert.Equal(t, expectedPerson, actualPerson)
@@ -55,7 +56,7 @@ func TestConvertStringToEnum(t *testing.T) {
 	assert.NotNil(t, driverVal)
 
 	val, err := ConvertStringToEnum(SalutationMap, "Some unknown value", "SalutationMap")
-	assert.EqualError(t, err, "Unknown value 'Some unknown value' for enum 'SalutationMap'")
+	assert.EqualError(t, err, "unknown value 'Some unknown value' for enum 'SalutationMap'")
 	assert.Equal(t, 0, val)
 
 	err = someSalutation.SetFromName("lala")
@@ -74,16 +75,16 @@ func TestConvertInterfaceToEnum(t *testing.T) {
 	assert.Equal(t, MS, someSalutation)
 
 	err = someSalutation.Scan(nil)
-	assert.EqualError(t, err, "Empty value to convert for enum 'SalutationMap'")
+	assert.EqualError(t, err, "empty value to convert for enum 'SalutationMap'")
 
 	err = someSalutation.Scan(123)
-	assert.EqualError(t, err, "Non-string value '123' for enum 'SalutationMap'")
+	assert.EqualError(t, err, "non-string value '123' for enum 'SalutationMap'")
 }
 
 func TestGenerateEnumQueryPart(t *testing.T) {
-	salutationEnumSql := GenerateEnumQueryPart(SalutationMap)
-	assert.Contains(t, salutationEnumSql, "Doctor")
-	assert.Contains(t, salutationEnumSql, "Miss")
-	assert.Contains(t, salutationEnumSql, "Missus")
-	assert.Contains(t, salutationEnumSql, "Mister")
+	salutationEnumSQL := GenerateEnumQueryPart(SalutationMap)
+	assert.Contains(t, salutationEnumSQL, "Doctor")
+	assert.Contains(t, salutationEnumSQL, "Miss")
+	assert.Contains(t, salutationEnumSQL, "Missus")
+	assert.Contains(t, salutationEnumSQL, "Mister")
 }

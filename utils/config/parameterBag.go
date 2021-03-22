@@ -3,8 +3,6 @@ package options
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/breathbath/go_utils/utils/conv"
-	errs2 "github.com/breathbath/go_utils/utils/errs"
 	io2 "io"
 	"io/ioutil"
 	"os"
@@ -12,6 +10,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/breathbath/go_utils/utils/conv"
+	errs2 "github.com/breathbath/go_utils/utils/errs"
 )
 
 type ValuesProvider interface {
@@ -23,21 +24,21 @@ type MapValuesProvider struct {
 	parameters *sync.Map
 }
 
-func NewMapValuesProvider(params map[string]interface{}) MapValuesProvider {
+func NewMapValuesProvider(params map[string]interface{}) *MapValuesProvider {
 	paramsMap := &sync.Map{}
 	for key, val := range params {
 		paramsMap.Store(key, val)
 	}
 
-	bag := MapValuesProvider{
+	bag := &MapValuesProvider{
 		parameters: paramsMap,
 	}
 
 	return bag
 }
 
-//Copy takes internal items, merges them with newParams and returns the result
-func (mvp MapValuesProvider) Copy(newParams map[string]interface{}) MapValuesProvider {
+// Copy takes internal items, merges them with newParams and returns the result
+func (mvp *MapValuesProvider) Copy(newParams map[string]interface{}) *MapValuesProvider {
 	resultItems := &sync.Map{}
 	mvp.parameters.Range(func(key, value interface{}) bool {
 		resultItems.Store(key, value)
@@ -48,40 +49,50 @@ func (mvp MapValuesProvider) Copy(newParams map[string]interface{}) MapValuesPro
 		resultItems.Store(k, v)
 	}
 
-	return MapValuesProvider{
+	return &MapValuesProvider{
 		parameters: resultItems,
 	}
 }
 
-func (mvp MapValuesProvider) Read(name string) (val interface{}, found bool) {
+func (mvp *MapValuesProvider) Read(name string) (val interface{}, found bool) {
 	return mvp.parameters.Load(name)
 }
 
-func (mvp MapValuesProvider) Dump(w io2.Writer) (err error) {
+func (mvp *MapValuesProvider) Dump(w io2.Writer) (err error) {
 	data := conv.ConvertSyncMapToMap(mvp.parameters)
 	jsonEncoder := json.NewEncoder(w)
 	err = jsonEncoder.Encode(data)
 	return
 }
 
+type NullValuesProvider struct{}
+
+func (nvp *NullValuesProvider) Read(name string) (val interface{}, found bool) {
+	return
+}
+
+func (nvp *NullValuesProvider) Dump(w io2.Writer) (err error) {
+	return
+}
+
 type EnvValuesProvider struct{}
 
-func (mvp EnvValuesProvider) Read(name string) (val interface{}, found bool) {
+func (mvp *EnvValuesProvider) Read(name string) (val interface{}, found bool) {
 	return os.LookupEnv(name)
 }
 
-func (mvp EnvValuesProvider) Dump(w io2.Writer) (err error) {
+func (mvp *EnvValuesProvider) Dump(w io2.Writer) (err error) {
 	data := os.Environ()
 	jsonEncoder := json.NewEncoder(w)
 	err = jsonEncoder.Encode(data)
 	return
 }
 
-type JsonFileValuesProvider struct {
+type JSONFileValuesProvider struct {
 	vals MapValuesProvider
 }
 
-func NewJsonValuesProvider(jsond io2.Reader) (jfvp JsonFileValuesProvider, err error) {
+func NewJSONValuesProvider(jsond io2.Reader) (jfvp *JSONFileValuesProvider, err error) {
 	var data []byte
 	data, err = ioutil.ReadAll(jsond)
 	if err != nil {
@@ -126,14 +137,14 @@ func NewJsonValuesProvider(jsond io2.Reader) (jfvp JsonFileValuesProvider, err e
 		parameters: params,
 	}
 
-	return JsonFileValuesProvider{vals: vals}, nil
+	return &JSONFileValuesProvider{vals: vals}, nil
 }
 
-func (mvp JsonFileValuesProvider) Read(name string) (val interface{}, found bool) {
+func (mvp *JSONFileValuesProvider) Read(name string) (val interface{}, found bool) {
 	return mvp.vals.Read(name)
 }
 
-func (mvp JsonFileValuesProvider) Dump(w io2.Writer) (err error) {
+func (mvp *JSONFileValuesProvider) Dump(w io2.Writer) (err error) {
 	return mvp.vals.Dump(w)
 }
 
@@ -141,11 +152,11 @@ type ValuesProviderComposite struct {
 	providers []ValuesProvider
 }
 
-func NewValuesProviderComposite(vps ...ValuesProvider) ValuesProviderComposite {
-	return ValuesProviderComposite{providers: vps}
+func NewValuesProviderComposite(vps ...ValuesProvider) *ValuesProviderComposite {
+	return &ValuesProviderComposite{providers: vps}
 }
 
-func (mvp ValuesProviderComposite) Read(name string) (val interface{}, found bool) {
+func (mvp *ValuesProviderComposite) Read(name string) (val interface{}, found bool) {
 	for _, vp := range mvp.providers {
 		val, found = vp.Read(name)
 		if found {
@@ -156,22 +167,27 @@ func (mvp ValuesProviderComposite) Read(name string) (val interface{}, found boo
 	return
 }
 
-//ParameterBag construction for holding configuration options
+// ParameterBag construction for holding configuration options
 type ParameterBag struct {
 	BaseValuesProvider ValuesProvider
 }
 
-//New creates empty bag
-func New(vp ValuesProvider) ParameterBag {
-	bag := ParameterBag{
-		BaseValuesProvider: vp,
+// New creates empty bag
+func New(vp ValuesProvider) *ParameterBag {
+	if vp == nil {
+		vp = &NullValuesProvider{}
 	}
 
-	return bag
+	return &ParameterBag{
+		BaseValuesProvider: vp,
+	}
 }
 
-//Read reads interface value, if not found, will read from envs, if not found there will return defaultVal
-func (p ParameterBag) Read(name string, defaultVal interface{}) (interface{}, bool) {
+// Read reads interface value, if not found, will read from envs, if not found there will return defaultVal
+func (p *ParameterBag) Read(name string, defaultVal interface{}) (interface{}, bool) {
+	if p.BaseValuesProvider == nil {
+		p.BaseValuesProvider = &NullValuesProvider{}
+	}
 	val, found := p.BaseValuesProvider.Read(name)
 	if found {
 		return val, found
@@ -180,8 +196,8 @@ func (p ParameterBag) Read(name string, defaultVal interface{}) (interface{}, bo
 	return defaultVal, found
 }
 
-//ReadRequired reads interface value, if not found, will return error
-func (p ParameterBag) ReadRequired(name string) (interface{}, error) {
+// ReadRequired reads interface value, if not found, will return error
+func (p *ParameterBag) ReadRequired(name string) (interface{}, error) {
 	valI, found := p.Read(name, nil)
 	if !found {
 		return valI, fmt.Errorf("required option %s is empty", name)
@@ -190,8 +206,8 @@ func (p ParameterBag) ReadRequired(name string) (interface{}, error) {
 	return valI, nil
 }
 
-//ReadString same as Read but returns a string
-func (p ParameterBag) ReadString(name, defaultVal string) string {
+// ReadString same as Read but returns a string
+func (p *ParameterBag) ReadString(name, defaultVal string) string {
 	valI, found := p.Read(name, defaultVal)
 	if !found {
 		return defaultVal
@@ -205,8 +221,8 @@ func (p ParameterBag) ReadString(name, defaultVal string) string {
 	return val
 }
 
-//ReadRequiredString same as ReadRequired but returns string or error
-func (p ParameterBag) ReadRequiredString(name string) (string, error) {
+// ReadRequiredString same as ReadRequired but returns string or error
+func (p *ParameterBag) ReadRequiredString(name string) (string, error) {
 	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return "", err
@@ -223,8 +239,8 @@ func (p ParameterBag) ReadRequiredString(name string) (string, error) {
 	return val, nil
 }
 
-//ReadStrings same as Read but returns []string
-func (p ParameterBag) ReadStrings(name string, defaultVal ...string) []string {
+// ReadStrings same as Read but returns []string
+func (p *ParameterBag) ReadStrings(name string, defaultVal ...string) []string {
 	valI, found := p.Read(name, defaultVal)
 	if !found {
 		return defaultVal
@@ -242,8 +258,8 @@ func (p ParameterBag) ReadStrings(name string, defaultVal ...string) []string {
 	return val
 }
 
-//ReadRequiredStrings same as Read but returns []string
-func (p ParameterBag) ReadRequiredStrings(name string) ([]string, error) {
+// ReadRequiredStrings same as Read but returns []string
+func (p *ParameterBag) ReadRequiredStrings(name string) ([]string, error) {
 	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return []string{}, err
@@ -262,8 +278,8 @@ func (p ParameterBag) ReadRequiredStrings(name string) ([]string, error) {
 	return val, nil
 }
 
-//ReadInt same as Read but returns a int
-func (p ParameterBag) ReadInt(name string, defaultVal int) int {
+// ReadInt same as Read but returns a int
+func (p *ParameterBag) ReadInt(name string, defaultVal int) int {
 	valI, found := p.Read(name, defaultVal)
 	if !found {
 		return defaultVal
@@ -281,8 +297,8 @@ func (p ParameterBag) ReadInt(name string, defaultVal int) int {
 	return val
 }
 
-//ReadRequiredInt same as Read but returns a int and fails if value is missing
-func (p ParameterBag) ReadRequiredInt(name string) (int, error) {
+// ReadRequiredInt same as Read but returns a int and fails if value is missing
+func (p *ParameterBag) ReadRequiredInt(name string) (int, error) {
 	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return 0, err
@@ -304,8 +320,8 @@ func (p ParameterBag) ReadRequiredInt(name string) (int, error) {
 	return val, nil
 }
 
-//ReadInt same as Read but returns a int
-func (p ParameterBag) ReadInt64(name string, defaultVal int64) int64 {
+// ReadInt same as Read but returns a int
+func (p *ParameterBag) ReadInt64(name string, defaultVal int64) int64 {
 	valI, found := p.Read(name, defaultVal)
 	if !found {
 		return defaultVal
@@ -323,8 +339,8 @@ func (p ParameterBag) ReadInt64(name string, defaultVal int64) int64 {
 	return val
 }
 
-//ReadRequiredInt same as Read but returns a int64 and fails if value is missing
-func (p ParameterBag) ReadRequiredInt64(name string) (int64, error) {
+// ReadRequiredInt same as Read but returns a int64 and fails if value is missing
+func (p *ParameterBag) ReadRequiredInt64(name string) (int64, error) {
 	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return 0, err
@@ -342,8 +358,8 @@ func (p ParameterBag) ReadRequiredInt64(name string) (int64, error) {
 	return val, nil
 }
 
-//ReadDuration reads int value and converts it to duration identified by the unit, if not set, will return defaultVal
-func (p ParameterBag) ReadDuration(name string, unit time.Duration, defaultVal uint) time.Duration {
+// ReadDuration reads int value and converts it to duration identified by the unit, if not set, will return defaultVal
+func (p *ParameterBag) ReadDuration(name string, unit time.Duration, defaultVal uint) time.Duration {
 	val, err := p.ReadRequiredDuration(name, unit)
 	if err != nil {
 		return unit * time.Duration(defaultVal)
@@ -352,8 +368,8 @@ func (p ParameterBag) ReadDuration(name string, unit time.Duration, defaultVal u
 	return val
 }
 
-//ReadRequiredDuration reads int value and converts it to duration identified by the unit, if not set, will return error
-func (p ParameterBag) ReadRequiredDuration(name string, unit time.Duration) (time.Duration, error) {
+// ReadRequiredDuration reads int value and converts it to duration identified by the unit, if not set, will return error
+func (p *ParameterBag) ReadRequiredDuration(name string, unit time.Duration) (time.Duration, error) {
 	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return 0, err
@@ -372,8 +388,8 @@ func (p ParameterBag) ReadRequiredDuration(name string, unit time.Duration) (tim
 	return unit * time.Duration(valUint), nil
 }
 
-//ReadBool same as Read but returns a bool or defaultVal
-func (p ParameterBag) ReadBool(name string, defaultVal bool) bool {
+// ReadBool same as Read but returns a bool or defaultVal
+func (p *ParameterBag) ReadBool(name string, defaultVal bool) bool {
 	valI, found := p.Read(name, defaultVal)
 	if !found {
 		return defaultVal
@@ -398,8 +414,8 @@ func (p ParameterBag) ReadBool(name string, defaultVal bool) bool {
 	return val
 }
 
-//ReadRequiredBool same as ReadRequired but returns bool or error
-func (p ParameterBag) ReadRequiredBool(name string) (bool, error) {
+// ReadRequiredBool same as ReadRequired but returns bool or error
+func (p *ParameterBag) ReadRequiredBool(name string) (bool, error) {
 	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return false, err
@@ -413,8 +429,8 @@ func (p ParameterBag) ReadRequiredBool(name string) (bool, error) {
 	return val, nil
 }
 
-//ReadUint same as Read but returns a uint
-func (p ParameterBag) ReadUint(name string, defaultVal uint) uint {
+// ReadUint same as Read but returns a uint
+func (p *ParameterBag) ReadUint(name string, defaultVal uint) uint {
 	valI, found := p.Read(name, defaultVal)
 	if !found {
 		return defaultVal
@@ -432,8 +448,8 @@ func (p ParameterBag) ReadUint(name string, defaultVal uint) uint {
 	return val
 }
 
-//ReadRequiredUint same as ReadRequired but returns uint or error
-func (p ParameterBag) ReadRequiredUint(name string) (uint, error) {
+// ReadRequiredUint same as ReadRequired but returns uint or error
+func (p *ParameterBag) ReadRequiredUint(name string) (uint, error) {
 	valI, err := p.ReadRequired(name)
 	if err != nil {
 		return 0, err
@@ -451,8 +467,8 @@ func (p ParameterBag) ReadRequiredUint(name string) (uint, error) {
 	return val, nil
 }
 
-//CheckRequiredValues checks if all required values are not empty
-func (p ParameterBag) CheckRequiredValues(keys []string) error {
+// CheckRequiredValues checks if all required values are not empty
+func (p *ParameterBag) CheckRequiredValues(keys []string) error {
 	errs := errs2.NewErrorContainer()
 	for _, key := range keys {
 		_, err := p.ReadRequired(key)

@@ -1,11 +1,11 @@
-//Package url gives HTTP clients helper functions
+// Package url gives HTTP clients helper functions
 package url
 
 import (
 	"strings"
 )
 
-//JoinURL joins url part into a single url
+// JoinURL joins url part into a single url
 func JoinURL(parts ...string) string {
 	preparedParts := make([]string, 0, len(parts))
 	for k, part := range parts {

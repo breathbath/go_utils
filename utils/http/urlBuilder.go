@@ -1,12 +1,13 @@
 package http
 
 import (
-	"github.com/breathbath/go_utils/utils/env"
 	"net/url"
 	"strings"
+
+	"github.com/breathbath/go_utils/utils/env"
 )
 
-func BuildUrl(host, path, rawQuery string) (string, error) {
+func BuildURL(host, path, rawQuery string) (string, error) {
 	u, err := url.Parse(host)
 	if err != nil {
 		return "", err
@@ -18,7 +19,7 @@ func BuildUrl(host, path, rawQuery string) (string, error) {
 	return u.String(), nil
 }
 
-func JoinUrl(parts ...string) string {
+func JoinURL(parts ...string) string {
 	preparedParts := make([]string, 0, len(parts))
 	for k, part := range parts {
 		if k == 0 {
@@ -30,16 +31,16 @@ func JoinUrl(parts ...string) string {
 	return strings.Join(preparedParts, "/")
 }
 
-func GetValidUrlFromEnvVar(urlEnvVarName string) (url.URL, error) {
-	envRootUrl, err := env.ReadEnvOrError(urlEnvVarName)
+func GetValidURLFromEnvVar(urlEnvVarName string) (url.URL, error) {
+	envRootURL, err := env.ReadEnvOrError(urlEnvVarName)
 	if err != nil {
 		return url.URL{}, err
 	}
 
-	parsedUrl, err := url.Parse(strings.TrimRight(envRootUrl, "/"))
+	parsedURL, err := url.Parse(strings.TrimRight(envRootURL, "/"))
 	if err != nil {
 		return url.URL{}, err
 	}
 
-	return *parsedUrl, nil
+	return *parsedURL, nil
 }

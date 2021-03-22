@@ -1,30 +1,31 @@
 package env
 
 import (
-	"github.com/breathbath/go_utils/utils/errs"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/breathbath/go_utils/utils/errs"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
 	err := os.Setenv("SOME_ENV_STRING", "GoLangCode")
 	errs.FailOnError(err)
 
-	err =os.Setenv("SOME_ENV_INT", "123")
+	err = os.Setenv("SOME_ENV_INT", "123")
 	errs.FailOnError(err)
 
-	err =os.Setenv("SOME_ENV_FLOAT", "123.345")
+	err = os.Setenv("SOME_ENV_FLOAT", "123.345")
 	errs.FailOnError(err)
 
-	err =os.Setenv("SOME_ENV_BOOL_TRUE", "true")
+	err = os.Setenv("SOME_ENV_BOOL_TRUE", "true")
 	errs.FailOnError(err)
 
-	err =os.Setenv("SOME_ENV_BOOL_FALSE", "false")
+	err = os.Setenv("SOME_ENV_BOOL_FALSE", "false")
 	errs.FailOnError(err)
 
-	err =os.Setenv("SOME_ENV_BOOL_EMPTY", "")
+	err = os.Setenv("SOME_ENV_BOOL_EMPTY", "")
 	errs.FailOnError(err)
 }
 
@@ -34,19 +35,19 @@ func TestSuite(t *testing.T) {
 		err := os.Unsetenv("SOME_ENV_STRING")
 		errCont.AddError(err)
 
-		err =os.Unsetenv("SOME_ENV_INT")
+		err = os.Unsetenv("SOME_ENV_INT")
 		errCont.AddError(err)
 
-		err =os.Unsetenv("SOME_ENV_FLOAT")
+		err = os.Unsetenv("SOME_ENV_FLOAT")
 		errCont.AddError(err)
 
-		err =os.Unsetenv("SOME_ENV_BOOL_TRUE")
+		err = os.Unsetenv("SOME_ENV_BOOL_TRUE")
 		errCont.AddError(err)
 
-		err =os.Unsetenv("SOME_ENV_BOOL_FALSE")
+		err = os.Unsetenv("SOME_ENV_BOOL_FALSE")
 		errCont.AddError(err)
 
-		err =os.Unsetenv("SOME_ENV_BOOL_EMPTY")
+		err = os.Unsetenv("SOME_ENV_BOOL_EMPTY")
 		errCont.AddError(err)
 
 		err = errCont.Result("\n")
@@ -101,7 +102,7 @@ func testReadEnvOrError(t *testing.T) {
 	assert.Equal(t, "GoLangCode", actualVal)
 
 	actualVal, err = ReadEnvOrError("NON_EXISTING_ENV_STRING")
-	assert.EqualError(t, err, "Required env variable 'NON_EXISTING_ENV_STRING' is not set")
+	assert.EqualError(t, err, "required env variable 'NON_EXISTING_ENV_STRING' is not set")
 	assert.Equal(t, "", actualVal)
 }
 
@@ -111,7 +112,7 @@ func testReadEnvOrFailWithExistingEnv(t *testing.T) {
 }
 
 func testReadEnvOrFailWithNonExistingEnv(t *testing.T) {
-	assert.PanicsWithValue(t, "Required env variable 'NON_EXISTING_ENV_STRING' is not set", func() {
+	assert.PanicsWithValue(t, "required env variable 'NON_EXISTING_ENV_STRING' is not set", func() {
 		ReadEnvOrFail("NON_EXISTING_ENV_STRING")
 	})
 }

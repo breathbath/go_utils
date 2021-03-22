@@ -35,9 +35,9 @@ func WrapError(err error, errSeparator, msg string, args ...interface{}) error {
 	return cont.Result(errSeparator)
 }
 
-func AppendError(err error, errors *[]error) {
+func AppendError(err error, errs *[]error) {
 	if err != nil {
-		*errors = append(*errors, err)
+		*errs = append(*errs, err)
 	}
 }
 

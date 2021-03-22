@@ -1,7 +1,7 @@
 package db
 
-func BuildDbGateway(driverName, dsnConnString string, maxConnAttempts int) (*DbGateway, error) {
-	conn, err := NewDb(dsnConnString, driverName)
+func BuildDBGateway(driverName, dsnConnString string, maxConnAttempts int) (*Gateway, error) {
+	conn, err := NewDB(dsnConnString, driverName)
 	if err != nil {
 		return nil, err
 	}
@@ -11,5 +11,5 @@ func BuildDbGateway(driverName, dsnConnString string, maxConnAttempts int) (*DbG
 		return nil, err
 	}
 
-	return NewDbGateway(conn), nil
+	return NewDBGateway(conn), nil
 }

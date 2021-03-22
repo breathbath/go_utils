@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-//AssertRequestEqual asserts that the expectations match the actual error
+// AssertRequestEqual asserts that the expectations match the actual error
 func AssertErrorContains(t *testing.T, theError error, msg string) {
 	if theError == nil {
 		t.Errorf("An error containing '%s' is expected but nil is received", msg)

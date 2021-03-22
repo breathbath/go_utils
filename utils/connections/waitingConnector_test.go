@@ -2,10 +2,11 @@ package connections
 
 import (
 	"errors"
-	testing2 "github.com/breathbath/go_utils/utils/testing"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	testing2 "github.com/breathbath/go_utils/utils/testing"
+	"github.com/stretchr/testify/assert"
 )
 
 var mockedSleeper = func(timeToSleep time.Duration) {}
@@ -26,7 +27,7 @@ func TestSuccessConnectionAfterFirstAttempt(t *testing.T) {
 
 func TestSleepingIntervals(t *testing.T) {
 	connector := func() (interface{}, error) {
-		return nil, errors.New("Some error")
+		return nil, errors.New("some error")
 	}
 	outputFunc := func(msg string, err error) {}
 
@@ -36,7 +37,8 @@ func TestSleepingIntervals(t *testing.T) {
 	}
 	SetSleeper(sleepFunc)
 
-	WaitForConnection(10, "", connector, outputFunc)
+	_, err := WaitForConnection(10, "", connector, outputFunc)
+	assert.Error(t, err)
 
 	expectedSleepingIntervals := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	assert.Equal(t, expectedSleepingIntervals, sleepingIntervals)
@@ -51,7 +53,7 @@ func TestSuccessConnectionAfterXAttempts(t *testing.T) {
 			return 1, nil
 		}
 
-		return nil, errors.New("Connection error")
+		return nil, errors.New("connection error")
 	}
 
 	allOutputs := []string{}
@@ -71,7 +73,7 @@ func TestSuccessConnectionAfterXAttempts(t *testing.T) {
 	assert.Equal(t, 2, callsCount)
 
 	expectedOutputs := []string{
-		"SomeConn connection error: Connection error",
+		"SomeConn connection error: connection error",
 		"Trying to reconnect to SomeConn in 1 s\n",
 	}
 	assert.Equal(t, expectedOutputs, allOutputs)
@@ -80,7 +82,7 @@ func TestSuccessConnectionAfterXAttempts(t *testing.T) {
 func TestConnectionFailure(t *testing.T) {
 	SetSleeper(mockedSleeper)
 	connector := func() (interface{}, error) {
-		return nil, errors.New("Connection error")
+		return nil, errors.New("connection error")
 	}
 	outputFunc := func(msg string, err error) {}
 
@@ -93,14 +95,15 @@ func TestConnectionFailure(t *testing.T) {
 func TestNoOutputFuncProvided(t *testing.T) {
 	SetSleeper(mockedSleeper)
 	connector := func() (interface{}, error) {
-		return 1, errors.New("Some error")
+		return 1, errors.New("some error")
 	}
 
 	output := testing2.CaptureOutput(func() {
-		WaitForConnection(2, "RemoteHost", connector, nil)
+		_, err := WaitForConnection(2, "RemoteHost", connector, nil)
+		assert.Error(t, err)
 	})
 
-	assert.Contains(t, output, "Some error")
+	assert.Contains(t, output, "some error")
 	assert.Contains(t, output, "Trying to reconnect to RemoteHost in 1 s")
 	assert.Contains(t, output, "Trying to reconnect to RemoteHost in 2 s")
 }

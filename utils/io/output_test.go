@@ -3,19 +3,20 @@ package io
 import (
 	"errors"
 	"fmt"
+	"testing"
+
 	testing2 "github.com/breathbath/go_utils/utils/testing"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const (
-	MULTILINE_TEXT = `One
+	multilineText = `One
 per
 each
 line`
 )
 
-type mockedLogger struct{
+type mockedLogger struct {
 	input string
 }
 
@@ -33,7 +34,7 @@ func TestOutputSingleLine(t *testing.T) {
 	testing2.AssertLogText(t, fmt.Sprintf("[%s] Some msg text", SeverityInfo), output)
 
 	output = testing2.CaptureOutput(func() {
-		OutputInfo("", MULTILINE_TEXT)
+		OutputInfo("", multilineText)
 	})
 
 	testing2.AssertLogText(t, fmt.Sprintf("[%s] One per each line", SeverityInfo), output)
@@ -56,10 +57,10 @@ func TestOutputSingleLineWithTopic(t *testing.T) {
 
 func TestOutputError(t *testing.T) {
 	output := testing2.CaptureOutput(func() {
-		err := errors.New("Some error")
+		err := errors.New("some error")
 		OutputError(err, "Some topic", "Some msg %s", "text")
 	})
-	testing2.AssertLogText(t, fmt.Sprintf("[%s] Some error, Some msg text [Some topic]", SeverityError), output)
+	testing2.AssertLogText(t, fmt.Sprintf("[%s] some error, Some msg text [Some topic]", SeverityError), output)
 }
 
 func TestOutputWarning(t *testing.T) {

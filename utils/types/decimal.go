@@ -3,11 +3,17 @@ package types
 import (
 	"database/sql/driver"
 	"fmt"
-	"github.com/shopspring/decimal"
 	"strings"
+
+	"github.com/shopspring/decimal"
 )
 
 var ZERO = NewDecimalFromInt(0)
+
+const (
+	defaultDecimalLength = 13
+	percentNumber        = 100
+)
 
 type Decimal struct {
 	dec decimal.Decimal
@@ -34,7 +40,7 @@ func NewDecimalFromInt(input int64) Decimal {
 }
 
 func (d Decimal) String() string {
-	output := fmt.Sprintf("%v", d.dec.StringFixed(13))
+	output := fmt.Sprintf("%v", d.dec.StringFixed(defaultDecimalLength))
 	output = strings.TrimRight(output, "0")
 	output = strings.TrimRight(output, ".")
 
@@ -99,7 +105,7 @@ func (d *Decimal) Scan(value interface{}) error {
 		d.dec = decimal.New(0, 0)
 		return nil
 	}
-	//we force to convert to string because values coming from db produce the following problems:
+	// we force to convert to string because values coming from db produce the following problems:
 	/**
 	decimal.NewFromFloat(0.357).Div(decimal.NewFromFloat(0.001)).Floor() == 356 or
 	in other words floor(0.357 / 0.001) == 356 which should be 357
@@ -203,7 +209,7 @@ func (d Decimal) Round(places int64) Decimal {
 }
 
 func (d Decimal) ToPercent(places int64) Decimal {
-	percent := d.Mul(NewDecimalFromInt(100))
+	percent := d.Mul(NewDecimalFromInt(percentNumber))
 	return percent.Round(places)
 }
 

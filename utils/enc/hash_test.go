@@ -1,9 +1,10 @@
 package enc
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
-	"testing"
 )
 
 func TestHash(t *testing.T) {
@@ -15,7 +16,7 @@ func TestChecksum(t *testing.T) {
 }
 
 func TestNewUuid(t *testing.T) {
-	assert.Equal(t, "d28b7a82-fe8f-57af-43e1-17bada1fd734", NewUuid("222"))
+	assert.Equal(t, "d28b7a82-fe8f-57af-43e1-17bada1fd734", NewUUID("222"))
 }
 
 func TestGetPasswordHash(t *testing.T) {

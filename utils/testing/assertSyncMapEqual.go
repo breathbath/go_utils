@@ -1,9 +1,10 @@
 package testing
 
 import (
-	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func AssertSyncMapEqual(t *testing.T, expected, actual *sync.Map, msgAndArgs ...interface{}) bool {

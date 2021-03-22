@@ -3,12 +3,13 @@ package options
 import (
 	"bytes"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMapValuesProviderRead(t *testing.T) {
@@ -54,7 +55,7 @@ func TestMapValuesProviderDump(t *testing.T) {
 		return
 	}
 
-	assert.Equal(t, `{"one":1,"two":"2"}` + "\n", b.String())
+	assert.Equal(t, `{"one":1,"two":"2"}`+"\n", b.String())
 }
 
 func TestEnvValuesProviderRead(t *testing.T) {
@@ -108,7 +109,7 @@ func TestEnvValuesProviderDump(t *testing.T) {
 
 func TestJsonFileValuesProviderRead(t *testing.T) {
 	buf := strings.NewReader(`{"key1":"val1","key2":2,"key3":3.3,"key4":null,"key5":""}`)
-	jvp, err := NewJsonValuesProvider(buf)
+	jvp, err := NewJSONValuesProvider(buf)
 	assert.NoError(t, err)
 
 	val, found := jvp.Read("key1")
@@ -138,7 +139,7 @@ func TestJsonFileValuesProviderRead(t *testing.T) {
 func TestJsonFileValuesProviderDump(t *testing.T) {
 	jsonStr := `{"key1":"val1","key2":2,"key3":3.3,"key4":null,"key5":""}`
 	readBuf := strings.NewReader(jsonStr)
-	jvp, err := NewJsonValuesProvider(readBuf)
+	jvp, err := NewJSONValuesProvider(readBuf)
 	assert.NoError(t, err)
 	if err != nil {
 		return
@@ -151,22 +152,23 @@ func TestJsonFileValuesProviderDump(t *testing.T) {
 		return
 	}
 
-	assert.Equal(t, jsonStr + "\n", writeBuf.String())
+	assert.Equal(t, jsonStr+"\n", writeBuf.String())
 }
 
 type failingReader struct{}
+
 func (fr failingReader) Read(p []byte) (n int, err error) {
 	return 0, errors.New("some error")
 }
 
 func TestJsonFileValuesProviderFailedReader(t *testing.T) {
-	_, err := NewJsonValuesProvider(failingReader{})
+	_, err := NewJSONValuesProvider(failingReader{})
 	assert.EqualError(t, err, "some error")
 }
 
 func TestJsonFileValuesProviderInvalidJson(t *testing.T) {
 	buf := strings.NewReader(`dfasdf`)
-	_, err := NewJsonValuesProvider(buf)
+	_, err := NewJSONValuesProvider(buf)
 	assert.Error(t, err)
 }
 
@@ -198,24 +200,24 @@ func TestValuesProviderComposite(t *testing.T) {
 
 func TestParameterBag(t *testing.T) {
 	mvp := NewMapValuesProvider(map[string]interface{}{
-		"intval": 1,
-		"intval64": int64(12),
-		"strval": "someStr",
-		"strvalEmpty": "",
-		"struct": struct{a bool}{a: true},
-		"stringsVal": []string{"one", "two"},
+		"intval":          1,
+		"intval64":        int64(12),
+		"strval":          "someStr",
+		"strvalEmpty":     "",
+		"struct":          struct{ a bool }{a: true},
+		"stringsVal":      []string{"one", "two"},
 		"stringsValEmpty": []string{},
-		"intStrVal": "33",
-		"dur": time.Second * 34,
-		"boolStrFalse": "false",
-		"boolStrTrue": "true",
-		"boolFalse": false,
-		"boolTrue": true,
-		"int0": 0,
-		"int-1": -1,
-		"str0": "0",
-		"unitVal": uint(14),
-		"nil": nil,
+		"intStrVal":       "33",
+		"dur":             time.Second * 34,
+		"boolStrFalse":    "false",
+		"boolStrTrue":     "true",
+		"boolFalse":       false,
+		"boolTrue":        true,
+		"int0":            0,
+		"int-1":           -1,
+		"str0":            "0",
+		"unitVal":         uint(14),
+		"nil":             nil,
 	})
 
 	pb := New(mvp)
@@ -254,31 +256,31 @@ func TestParameterBag(t *testing.T) {
 	assert.EqualError(t, err, "required option notfoundval is empty")
 
 	val7, err := pb.ReadRequiredString("struct")
-	assert.NoError(t, err,)
+	assert.NoError(t, err)
 	assert.Equal(t, "{true}", val7)
 
 	_, err = pb.ReadRequiredString("strvalEmpty")
 	assert.EqualError(t, err, "required option strvalEmpty is empty")
 
-	val8 := pb.ReadStrings("stringsVal", "threee")
-	assert.Equal(t,  []string{"one", "two"}, val8)
+	val8 := pb.ReadStrings("stringsVal", "three")
+	assert.Equal(t, []string{"one", "two"}, val8)
 
-	val9 := pb.ReadStrings("notfoundval", "threee", "four")
-	assert.Equal(t,  []string{"threee", "four"}, val9)
+	val9 := pb.ReadStrings("notfoundval", "three", "four")
+	assert.Equal(t, []string{"three", "four"}, val9)
 
-	val10 := pb.ReadStrings("strval", "threee")
-	assert.Equal(t,  []string{"someStr"}, val10)
+	val10 := pb.ReadStrings("strval", "three")
+	assert.Equal(t, []string{"someStr"}, val10)
 
-	val11 := pb.ReadStrings("struct", "threee")
-	assert.Equal(t,  []string{"threee"}, val11)
+	val11 := pb.ReadStrings("struct", "three")
+	assert.Equal(t, []string{"three"}, val11)
 
 	val12, err := pb.ReadRequiredStrings("stringsVal")
-	assert.NoError(t, err,)
-	assert.Equal(t,  []string{"one", "two"}, val12)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"one", "two"}, val12)
 
 	val13, err := pb.ReadRequiredStrings("strval")
-	assert.NoError(t, err,)
-	assert.Equal(t,  []string{"someStr"}, val13)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"someStr"}, val13)
 
 	_, err = pb.ReadRequiredStrings("notfoundval")
 	assert.EqualError(t, err, "required option notfoundval is empty")
@@ -306,7 +308,7 @@ func TestParameterBag(t *testing.T) {
 	assert.EqualError(t, err, "required option notfoundval is empty")
 
 	val17, err := pb.ReadRequiredInt("intStrVal")
-	assert.NoError(t, err,)
+	assert.NoError(t, err)
 	assert.Equal(t, 33, val17)
 
 	_, err = pb.ReadRequiredInt("strval")
@@ -342,7 +344,7 @@ func TestParameterBag(t *testing.T) {
 	assert.EqualError(t, err, "required option notfoundval is empty")
 
 	val23, err := pb.ReadRequiredInt64("intStrVal")
-	assert.NoError(t, err,)
+	assert.NoError(t, err)
 	assert.Equal(t, int64(33), val23)
 
 	_, err = pb.ReadRequiredInt64("strval")
@@ -355,30 +357,30 @@ func TestParameterBag(t *testing.T) {
 	assert.Equal(t, time.Second, val24)
 
 	val25 := pb.ReadDuration("notfoundval", time.Second, 55)
-	assert.Equal(t, time.Second * 55, val25)
+	assert.Equal(t, time.Second*55, val25)
 
 	val26 := pb.ReadDuration("struct", time.Second, 55)
-	assert.Equal(t, time.Second * 55, val26)
+	assert.Equal(t, time.Second*55, val26)
 
 	val27 := pb.ReadDuration("intStrVal", time.Second, 56)
-	assert.Equal(t, time.Second * 33, val27)
+	assert.Equal(t, time.Second*33, val27)
 
 	val28 := pb.ReadDuration("dur", time.Second, 57)
-	assert.Equal(t, time.Second * 34, val28)
+	assert.Equal(t, time.Second*34, val28)
 
 	val29, err := pb.ReadRequiredDuration("dur", time.Minute)
 	assert.NoError(t, err)
-	assert.Equal(t, time.Second * 34, val29)
+	assert.Equal(t, time.Second*34, val29)
 
 	val30, err := pb.ReadRequiredDuration("intStrVal", time.Minute)
 	assert.NoError(t, err)
-	assert.Equal(t, time.Minute * 33, val30)
+	assert.Equal(t, time.Minute*33, val30)
 
 	_, err = pb.ReadRequiredDuration("notfoundval", time.Minute)
 	assert.EqualError(t, err, "required option notfoundval is empty")
 
 	val31, err := pb.ReadRequiredDuration("intval", time.Minute)
-	assert.NoError(t, err,)
+	assert.NoError(t, err)
 	assert.Equal(t, time.Minute, val31)
 
 	_, err = pb.ReadRequiredDuration("strval", time.Minute)
@@ -452,7 +454,7 @@ func TestParameterBag(t *testing.T) {
 	assert.EqualError(t, err, "required option notfoundval is empty")
 
 	val47, err := pb.ReadRequiredBool("str0")
-	assert.NoError(t, err,)
+	assert.NoError(t, err)
 	assert.Equal(t, false, val47)
 
 	val48 := pb.ReadUint("intval", 14)
@@ -487,7 +489,7 @@ func TestParameterBag(t *testing.T) {
 	assert.EqualError(t, err, "required option notfoundval is empty")
 
 	val57, err := pb.ReadRequiredUint("intStrVal")
-	assert.NoError(t, err,)
+	assert.NoError(t, err)
 	assert.Equal(t, uint(33), val57)
 
 	_, err = pb.ReadRequiredUint("strval")
@@ -501,4 +503,10 @@ func TestParameterBag(t *testing.T) {
 
 	err = pb.CheckRequiredValues([]string{"intval", "boolFalse", "intval64", "stringsValEmpty", "strvalEmpty", "str0", "nil"})
 	assert.NoError(t, err)
+}
+
+func TestParameterBagWithNoValuesProvider(t *testing.T) {
+	pb := New(nil)
+	val := pb.ReadString("someKey", "someDefault")
+	assert.Equal(t, "someDefault", val)
 }

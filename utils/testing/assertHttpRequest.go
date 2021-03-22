@@ -2,10 +2,11 @@ package testing
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type KeyValueStr struct {
@@ -13,7 +14,7 @@ type KeyValueStr struct {
 	Value string
 }
 
-//RequestExpectation contains expectation info for a http request
+// RequestExpectation contains expectation info for a http request
 type RequestExpectation struct {
 	IsNilRequestExpected bool
 	ExpectedURL          StringExpectation
@@ -22,19 +23,19 @@ type RequestExpectation struct {
 	ExpectedBody         StringExpectation
 }
 
-//StringExpectation defines string assertion rule, if IsActive is false expectation is disabled
+// StringExpectation defines string assertion rule, if IsActive is false expectation is disabled
 type StringExpectation struct {
 	Value    string
 	IsActive bool
 }
 
-//NewStringExpectation creates active expectation
+// NewStringExpectation creates active expectation
 func NewStringExpectation(value string) StringExpectation {
 	return StringExpectation{Value: value, IsActive: true}
 }
 
-//AssertRequestEqual asserts that the expectations match the actual request
-func AssertRequestEqual(t *testing.T, re RequestExpectation, actualRequest *http.Request) {
+// AssertRequestEqual asserts that the expectations match the actual request
+func AssertRequestEqual(t *testing.T, re *RequestExpectation, actualRequest *http.Request) {
 	if re.IsNilRequestExpected && actualRequest == nil {
 		return
 	}
