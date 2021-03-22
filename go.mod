@@ -1,4 +1,4 @@
-module github.com/breathbath/go_utils
+module github.com/breathbath/go_utils/v2
 
 go 1.14
 
