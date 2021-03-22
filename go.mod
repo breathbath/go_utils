@@ -9,5 +9,6 @@ require (
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20190829043050-9756ffdc2472
-	gopkg.in/yaml.v2 v2.3.0
+	google.golang.org/appengine v1.6.7 // indirect
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
