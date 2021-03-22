@@ -12,7 +12,7 @@ jobs:
           version: v1.30
           args: -c .golangci.yml
   test:
-    name: Build
+    name: Test
     runs-on: ubuntu-latest
     steps:
 
