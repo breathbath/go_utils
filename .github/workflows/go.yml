@@ -9,9 +9,9 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.29
+          version: v1.30
           args: -c .golangci.yml
-  build:
+  test:
     name: Build
     runs-on: ubuntu-latest
     steps:
