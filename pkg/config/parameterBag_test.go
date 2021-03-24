@@ -55,7 +55,20 @@ func TestMapValuesProviderDump(t *testing.T) {
 		return
 	}
 
-	assert.Equal(t, `{"one":1,"two":"2"}`+"\n", b.String())
+	assert.Contains(t, b.String(), `"one":1`)
+	assert.Contains(t, b.String(), `"two":"2"`)
+}
+
+func TestMapValuesProviderToKeyValue(t *testing.T) {
+	providedKeyValues := map[string]interface{}{
+		"one": 1,
+		"two": "2",
+	}
+	mvp := NewMapValuesProvider(providedKeyValues)
+
+	actualKeyValues := mvp.ToKeyValues()
+
+	assert.Equal(t, providedKeyValues, actualKeyValues)
 }
 
 func TestEnvValuesProviderRead(t *testing.T) {
@@ -107,6 +120,26 @@ func TestEnvValuesProviderDump(t *testing.T) {
 	assert.Contains(t, b.String(), `someenvval1`)
 }
 
+func TestEnvValuesProviderToKeyValues(t *testing.T) {
+	err := os.Setenv("someenv222", "someenvval222")
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+	defer func() {
+		err = os.Unsetenv("someenv222")
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	evp := EnvValuesProvider{}
+
+	kvs := evp.ToKeyValues()
+
+	assert.Equal(t, "someenvval222", kvs["someenv222"])
+}
+
 func TestJsonFileValuesProviderRead(t *testing.T) {
 	buf := strings.NewReader(`{"key1":"val1","key2":2,"key3":3.3,"key4":null,"key5":""}`)
 	jvp, err := NewJSONValuesProvider(buf)
@@ -152,7 +185,25 @@ func TestJsonFileValuesProviderDump(t *testing.T) {
 		return
 	}
 
-	assert.Equal(t, jsonStr+"\n", writeBuf.String())
+	actualDumpValue := writeBuf.String()
+	assert.Contains(t, actualDumpValue, `"key1":"val1"`)
+	assert.Contains(t, actualDumpValue, `"key2":2,"key3"`)
+	assert.Contains(t, actualDumpValue, `"key4":null`)
+	assert.Contains(t, actualDumpValue, `"key5":""`)
+}
+
+func TestJsonFileValuesProviderToKeyValues(t *testing.T) {
+	jsonStr := `{"color":"red","number":2}`
+	readBuf := strings.NewReader(jsonStr)
+	jvp, err := NewJSONValuesProvider(readBuf)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	kvs := jvp.ToKeyValues()
+
+	assert.Equal(t, map[string]interface{}{"color": "red", "number": 2}, kvs)
 }
 
 type failingReader struct{}
@@ -172,7 +223,7 @@ func TestJsonFileValuesProviderInvalidJson(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestValuesProviderComposite(t *testing.T) {
+func TestValuesProviderCompositeRead(t *testing.T) {
 	mvp1 := NewMapValuesProvider(map[string]interface{}{
 		"one": 1,
 		"two": "2",
@@ -198,7 +249,61 @@ func TestValuesProviderComposite(t *testing.T) {
 	assert.False(t, found3)
 }
 
-func TestParameterBag(t *testing.T) {
+func TestValuesProviderCompositeDump(t *testing.T) {
+	mvp1 := NewMapValuesProvider(map[string]interface{}{
+		"name":    "John",
+		"surname": "Deer",
+	})
+	mvp2 := NewMapValuesProvider(map[string]interface{}{
+		"age": 33,
+	})
+	vpc := NewValuesProviderComposite(mvp1, mvp2)
+
+	writeBuf := &bytes.Buffer{}
+	err := vpc.Dump(writeBuf)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	actualDumpValue := writeBuf.String()
+	assert.Contains(t, actualDumpValue, `"name":"John"`)
+	assert.Contains(t, actualDumpValue, `"surname":"Deer"`)
+	assert.Contains(t, actualDumpValue, `"age":33`)
+}
+
+func TestValuesProviderCompositeToKeyValues(t *testing.T) {
+	jsonStr := `{"make":"four","take":"three"}`
+	readBuf := strings.NewReader(jsonStr)
+	jvp, err := NewJSONValuesProvider(readBuf)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	err = os.Setenv("onekey", "oneValue")
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+	defer func() {
+		err = os.Unsetenv("onekey")
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}()
+
+	evp := &EnvValuesProvider{}
+
+	vpc := NewValuesProviderComposite(jvp, evp)
+	kvs := vpc.ToKeyValues()
+
+	assert.Equal(t, "four", kvs["make"])
+	assert.Equal(t, "three", kvs["take"])
+	assert.Equal(t, "oneValue", kvs["onekey"])
+}
+
+func TestParameterBagRead(t *testing.T) {
 	mvp := NewMapValuesProvider(map[string]interface{}{
 		"intval":          1,
 		"intval64":        int64(12),
@@ -509,4 +614,21 @@ func TestParameterBagWithNoValuesProvider(t *testing.T) {
 	pb := New(nil)
 	val := pb.ReadString("someKey", "someDefault")
 	assert.Equal(t, "someDefault", val)
+}
+
+func TestParameterBagMerge(t *testing.T) {
+	mvp1 := NewMapValuesProvider(map[string]interface{}{
+		"randomNumb": 134,
+	})
+	mvp2 := NewMapValuesProvider(map[string]interface{}{
+		"randomStr": "lsls4",
+	})
+
+	paramBag1 := New(mvp1)
+	paramBag2 := New(mvp2)
+
+	paramBag1.MergeParameterBag(paramBag2)
+
+	assert.Equal(t, 134, paramBag1.ReadInt("randomNumb", 0))
+	assert.Equal(t, "lsls4", paramBag1.ReadString("randomStr", ""))
 }

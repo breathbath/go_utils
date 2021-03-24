@@ -18,6 +18,7 @@ import (
 type ValuesProvider interface {
 	Read(name string) (val interface{}, found bool)
 	Dump(w io2.Writer) (err error)
+	ToKeyValues() map[string]interface{}
 }
 
 type MapValuesProvider struct {
@@ -58,6 +59,10 @@ func (mvp *MapValuesProvider) Read(name string) (val interface{}, found bool) {
 	return mvp.parameters.Load(name)
 }
 
+func (mvp *MapValuesProvider) ToKeyValues() map[string]interface{} {
+	return conv.ConvertSyncMapToMap(mvp.parameters)
+}
+
 func (mvp *MapValuesProvider) Dump(w io2.Writer) (err error) {
 	data := conv.ConvertSyncMapToMap(mvp.parameters)
 	jsonEncoder := json.NewEncoder(w)
@@ -75,17 +80,31 @@ func (nvp *NullValuesProvider) Dump(w io2.Writer) (err error) {
 	return
 }
 
+func (nvp *NullValuesProvider) ToKeyValues() map[string]interface{} {
+	return map[string]interface{}{}
+}
+
 type EnvValuesProvider struct{}
 
-func (mvp *EnvValuesProvider) Read(name string) (val interface{}, found bool) {
+func (evp *EnvValuesProvider) Read(name string) (val interface{}, found bool) {
 	return os.LookupEnv(name)
 }
 
-func (mvp *EnvValuesProvider) Dump(w io2.Writer) (err error) {
+func (evp *EnvValuesProvider) Dump(w io2.Writer) (err error) {
 	data := os.Environ()
 	jsonEncoder := json.NewEncoder(w)
 	err = jsonEncoder.Encode(data)
 	return
+}
+
+func (evp *EnvValuesProvider) ToKeyValues() map[string]interface{} {
+	res := map[string]interface{}{}
+	for _, env := range os.Environ() {
+		envPair := strings.SplitN(env, "=", 2)
+		res[envPair[0]] = envPair[1]
+	}
+
+	return res
 }
 
 type JSONFileValuesProvider struct {
@@ -140,12 +159,16 @@ func NewJSONValuesProvider(jsond io2.Reader) (jfvp *JSONFileValuesProvider, err 
 	return &JSONFileValuesProvider{vals: vals}, nil
 }
 
-func (mvp *JSONFileValuesProvider) Read(name string) (val interface{}, found bool) {
-	return mvp.vals.Read(name)
+func (jfvp *JSONFileValuesProvider) Read(name string) (val interface{}, found bool) {
+	return jfvp.vals.Read(name)
 }
 
-func (mvp *JSONFileValuesProvider) Dump(w io2.Writer) (err error) {
-	return mvp.vals.Dump(w)
+func (jfvp *JSONFileValuesProvider) Dump(w io2.Writer) (err error) {
+	return jfvp.vals.Dump(w)
+}
+
+func (jfvp *JSONFileValuesProvider) ToKeyValues() map[string]interface{} {
+	return jfvp.vals.ToKeyValues()
 }
 
 type ValuesProviderComposite struct {
@@ -156,8 +179,8 @@ func NewValuesProviderComposite(vps ...ValuesProvider) *ValuesProviderComposite 
 	return &ValuesProviderComposite{providers: vps}
 }
 
-func (mvp *ValuesProviderComposite) Read(name string) (val interface{}, found bool) {
-	for _, vp := range mvp.providers {
+func (vpc *ValuesProviderComposite) Read(name string) (val interface{}, found bool) {
+	for _, vp := range vpc.providers {
 		val, found = vp.Read(name)
 		if found {
 			return
@@ -165,6 +188,24 @@ func (mvp *ValuesProviderComposite) Read(name string) (val interface{}, found bo
 	}
 
 	return
+}
+
+func (vpc *ValuesProviderComposite) ToKeyValues() map[string]interface{} {
+	res := map[string]interface{}{}
+	for _, vp := range vpc.providers {
+		kvs := vp.ToKeyValues()
+		for k, v := range kvs {
+			res[k] = v
+		}
+	}
+
+	return res
+}
+
+func (vpc *ValuesProviderComposite) Dump(w io2.Writer) (err error) {
+	kvs := vpc.ToKeyValues()
+	jsonEncoder := json.NewEncoder(w)
+	return jsonEncoder.Encode(kvs)
 }
 
 // ParameterBag construction for holding configuration options
@@ -478,4 +519,9 @@ func (p *ParameterBag) CheckRequiredValues(keys []string) error {
 	}
 
 	return errs.Result(" ")
+}
+
+func (p *ParameterBag) MergeParameterBag(m *ParameterBag) {
+	valuesProviderComposite := NewValuesProviderComposite(p.BaseValuesProvider, m.BaseValuesProvider)
+	p.BaseValuesProvider = valuesProviderComposite
 }
