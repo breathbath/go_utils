@@ -8,7 +8,7 @@ import (
 const MysqlTimeFormat = "2006-01-02 15:04:05"
 
 func ConvertFloat(input sql.NullFloat64) float64 {
-	var floatVal float64 = 0
+	var floatVal float64
 	if input.Valid {
 		floatVal = input.Float64
 	}
@@ -17,7 +17,7 @@ func ConvertFloat(input sql.NullFloat64) float64 {
 }
 
 func ConvertInt(input sql.NullInt64) int64 {
-	var intVal int64 = 0
+	var intVal int64
 	if input.Valid {
 		intVal = input.Int64
 	}

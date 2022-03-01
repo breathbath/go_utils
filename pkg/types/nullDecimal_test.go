@@ -3,6 +3,8 @@ package types
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,7 +39,8 @@ func TestJsonUnMarshal(t *testing.T) {
 	assert.Equal(t, expectedDecimal, nd.DecimalValue)
 
 	err1 := nd.UnmarshalJSON([]byte("invalid decimal"))
-	assert.EqualError(t, err1, "Error decoding string 'invalid decimal': can't convert invalid decimal to decimal: exponent is not numeric")
+	require.Error(t, err1)
+	assert.Contains(t, err1.Error(), "'invalid decimal'")
 
 	err2 := nd.UnmarshalJSON([]byte(`"22"`))
 	assert.NoError(t, err2)
@@ -72,7 +75,7 @@ func TestNullDecimalScan(t *testing.T) {
 		err := someNullDecimal.Scan(validValue)
 		assert.NoError(t, err)
 		assert.True(t, someNullDecimal.Valid)
-		assert.Equal(t, expectedDecimal, someNullDecimal.DecimalValue)
+		assert.True(t, someNullDecimal.DecimalValue.Equal(expectedDecimal))
 		driverVal, err := someNullDecimal.Value()
 		assert.NoError(t, err)
 		assert.NotNil(t, driverVal)

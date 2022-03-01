@@ -17,7 +17,7 @@ func NewBadResponseCodeError(url string, resp *http.Response, respBody []byte) B
 
 func (brce BadResponseCodeError) Error() string {
 	return fmt.Sprintf(
-		"Remote server under %s responded with code: %d, body: %s, status: %s",
+		"Remote server under %s responded with code: %d, body: %q, status: %s",
 		brce.url,
 		brce.resp.StatusCode,
 		string(brce.respBody),

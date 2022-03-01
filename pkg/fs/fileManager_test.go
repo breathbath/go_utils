@@ -2,7 +2,6 @@ package fs
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -19,25 +18,6 @@ func TestGetCurrentPath(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, expectedCurPathString, curPathString)
-}
-
-func TestReadFilesInDirectory(t *testing.T) {
-	err := MkDir("lala")
-	assert.NoError(t, err)
-
-	err = ioutil.WriteFile("lala/someFile.txt", []byte(""), 0600)
-	assert.NoError(t, err)
-
-	files, err := ReadFilesInDirectory("lala")
-	assert.NoError(t, err)
-
-	assert.Len(t, files, 1)
-	for _, file := range files {
-		assert.Equal(t, "someFile.txt", file.Name())
-	}
-
-	err = os.RemoveAll("lala")
-	assert.NoError(t, err)
 }
 
 func TestFileExistsOrFail(t *testing.T) {
@@ -166,7 +146,7 @@ func TestReadFile(t *testing.T) {
 func testFile(t *testing.T, fileName string, fileContent []byte, testFunc func(t *testing.T)) {
 	RmFile(fileName)
 
-	err := ioutil.WriteFile(fileName, fileContent, 0600)
+	err := os.WriteFile(fileName, fileContent, 0600)
 	assert.NoError(t, err)
 
 	testFunc(t)
@@ -208,7 +188,7 @@ func TestTouchFile(t *testing.T) {
 
 	assert.True(t, FileExists(filePath))
 
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	assert.NoError(t, err)
 	assert.Len(t, data, 0)
 }

@@ -9,10 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var exampleStruct []string
-var exampleMap map[string]string
-var exampleMapInterface map[string]interface{}
-
 type syncMapTestCase struct {
 	syncMap   *sync.Map
 	legacyMap map[string]interface{}
@@ -20,7 +16,7 @@ type syncMapTestCase struct {
 	errStr    string
 }
 
-func init() {
+var (
 	exampleStruct = []string{
 		"one",
 		"two",
@@ -38,7 +34,7 @@ func init() {
 		"1": 1,
 		"2": 2,
 	}
-}
+)
 
 func TestConvertStructToMap(t *testing.T) {
 	outputMap := ConvertStructToMap(exampleStruct)

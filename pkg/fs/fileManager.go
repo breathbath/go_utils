@@ -4,24 +4,21 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/breathbath/go_utils/v2/pkg/errs"
 	io2 "github.com/breathbath/go_utils/v2/pkg/io"
+
+	"github.com/breathbath/go_utils/v2/pkg/errs"
 )
 
 const DS = string(os.PathSeparator)
+const defaultPerm = os.FileMode(0600)
 
 func GetCurrentPath() (string, error) {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	return dir + string(os.PathSeparator), err
-}
-
-func ReadFilesInDirectory(dirPath string) ([]os.FileInfo, error) {
-	return ioutil.ReadDir(dirPath)
 }
 
 func FileExistsOrFail(filePath string) {
@@ -124,17 +121,17 @@ func IsDirectory(path string) (bool, error) {
 }
 
 func TouchFile(fullFilePath string) error {
-	err := ioutil.WriteFile(fullFilePath, []byte{}, 0600)
+	err := os.WriteFile(fullFilePath, []byte{}, defaultPerm)
 	return err
 }
 
 func WriteFileString(fullFilePath, data string, perm os.FileMode) error {
-	err := ioutil.WriteFile(fullFilePath, []byte(data), 0600)
+	err := os.WriteFile(fullFilePath, []byte(data), defaultPerm)
 	return err
 }
 
 func ReadFileString(fullFilePath string) (string, error) {
-	data, err := ioutil.ReadFile(fullFilePath)
+	data, err := os.ReadFile(fullFilePath)
 	return string(data), err
 }
 

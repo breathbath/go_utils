@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var maxMessageLength int = 5000
+var maxMessageLength = 5000
 
 var logger Logger
 

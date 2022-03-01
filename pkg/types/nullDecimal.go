@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 )
 
+const NullableStr = "null"
+
 type NullDecimal struct {
 	DecimalValue Decimal
 	Valid        bool
@@ -24,7 +26,7 @@ func (nd *NullDecimal) Scan(value interface{}) (err error) {
 	case nil:
 		isValid = false
 	case []byte:
-		isValid = string(val) != ""
+		isValid = len(val) != 0
 	case string:
 		isValid = val != ""
 	}

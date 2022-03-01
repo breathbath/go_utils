@@ -2,15 +2,17 @@ package rest
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
+	io2 "github.com/breathbath/go_utils/v2/pkg/io"
+	"github.com/stretchr/testify/require"
+
 	http2 "github.com/breathbath/go_utils/v2/pkg/http"
-	"github.com/breathbath/go_utils/v2/pkg/io"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,9 +25,9 @@ type RequestMock struct {
 }
 
 func NewRequestMock(r *http.Request) RequestMock {
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		io.OutputError(err, "", "")
+		io2.OutputError(err, "", "")
 	}
 
 	return RequestMock{
@@ -37,13 +39,9 @@ func NewRequestMock(r *http.Request) RequestMock {
 	}
 }
 
-var requests []RequestMock
+var requests = []RequestMock{}
 var serverAddr string
 var proxyServerAddr string
-
-func init() {
-	requests = []RequestMock{}
-}
 
 func TestRequestContextToString(t *testing.T) {
 	rc := &RequestContext{
@@ -91,8 +89,9 @@ func testHeaders(t *testing.T) {
 	}
 
 	cl := NewJSONClient()
-	_, _, err := cl.Get(context.Background(), rc)
-	assert.NoError(t, err)
+	_, resp, err := cl.Get(context.Background(), rc)
+	require.NoError(t, err)
+	defer resp.Body.Close()
 
 	assert.Len(t, requests, 1)
 	req := requests[0]
@@ -110,7 +109,10 @@ func testGet(t *testing.T) {
 	}
 
 	body, resp, err := cl.Get(context.Background(), rc)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+
+	defer resp.Body.Close()
+
 	if err != nil {
 		return
 	}
@@ -129,10 +131,12 @@ func testPost(t *testing.T) {
 	}
 
 	body, resp, err := cl.Post(context.Background(), rc)
-	assert.NoError(t, err)
-	if err != nil {
-		return
+	require.NoError(t, err)
+
+	if resp.Body != nil {
+		defer resp.Body.Close()
 	}
+
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, `{"key":"val"}`, string(body))
 	assert.Len(t, requests, 1)
@@ -182,7 +186,10 @@ func testInvalidMethod(t *testing.T) {
 		Method:    "мама",
 	}
 	cl := NewJSONClient()
-	_, _, err := cl.CallAPI(context.Background(), rc)
+	_, resp, err := cl.CallAPI(context.Background(), rc)
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+	}
 	assert.EqualError(t, err, `net/http: invalid method "мама"`)
 }
 
@@ -192,8 +199,11 @@ func testServerErrors(t *testing.T) {
 		Method:    "GET",
 	}
 	cl := NewJSONClient()
-	_, _, err := cl.CallAPI(context.Background(), rc)
+	_, resp, err := cl.CallAPI(context.Background(), rc)
 	assert.IsType(t, BadResponseCodeError{}, err)
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
 
 	badRespErr := err.(BadResponseCodeError)
 	assert.Equal(t, 500, badRespErr.resp.StatusCode)
@@ -206,9 +216,12 @@ func testInvalidAddress(t *testing.T) {
 		Method:    "GET",
 	}
 	cl := NewJSONClient()
-	_, _, err := cl.Get(context.Background(), rc)
-	assert.Error(t, err)
+	_, resp, err := cl.Get(context.Background(), rc)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), `request failed with error`)
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+	}
 }
 
 func testProxy(t *testing.T) {
@@ -220,8 +233,12 @@ func testProxy(t *testing.T) {
 		ProxyURL:  proxyServerAddr,
 	}
 	cl := NewJSONClient()
-	_, _, err := cl.Get(context.Background(), rc)
+	_, resp, err := cl.Get(context.Background(), rc)
 	assert.NoError(t, err)
+
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
 
 	assert.Len(t, requests, 1)
 	req := requests[0]
@@ -252,7 +269,7 @@ func startHTTPServer() *httptest.Server {
 			rw.WriteHeader(int(errCode))
 			_, err := rw.Write([]byte(http2.GetRequestValueString(r, "body", "")))
 			if err != nil {
-				io.OutputError(err, "", "")
+				io2.OutputError(err, "", "")
 			}
 			return
 		}

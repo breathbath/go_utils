@@ -1,16 +1,16 @@
+run:
+  deadline: 2m
 linters-settings:
   dupl:
     threshold: 100
-  exhaustive:
-    default-signifies-exhaustive: false
   funlen:
     lines: 100
-    statements: 100
+    statements: 50
   gci:
-    local-prefixes: github.com/cloudradar-monitoring/rportcli
+    local-prefixes: github.com/golangci/golangci-lint
   goconst:
     min-len: 2
-    min-occurrences: 2
+    min-occurrences: 3
   gocritic:
     enabled-tags:
       - diagnostic
@@ -28,13 +28,13 @@ linters-settings:
     min-complexity: 15
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
-  golint:
-    min-confidence: 0
   gomnd:
     settings:
       mnd:
         # don't include the "operation" and "assign"
         checks: argument,case,condition,return
+        ignored-numbers: 0,1,2,3,64,16,32,10
+        ignored-functions: strings.SplitN
   govet:
     check-shadowing: true
     settings:
@@ -57,37 +57,35 @@ linters-settings:
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
 
 linters:
-  # please, do not use `enable-all`: it's deprecated and will be removed soon.
-  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
+    - bodyclose
     - deadcode
     - depguard
     - dogsled
     - dupl
     - errcheck
+    - exportloopref
     - exhaustive
     - funlen
+    - gochecknoinits
     - goconst
     - gocritic
     - gocyclo
     - gofmt
     - goimports
-    - golint
     - gomnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
     - lll
     - misspell
     - nakedret
     - noctx
     - nolintlint
     - rowserrcheck
-    - scopelint
     - staticcheck
     - structcheck
     - stylecheck
@@ -97,45 +95,21 @@ linters:
     - unused
     - varcheck
     - whitespace
-    - maligned
+    - revive
+
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
-    - linters:
-        - gocritic
-      text: "unnecessaryDefer:"
-    - linters:
-        - gosec
-      text: "G402:|G501:|G505:|G401:"
     - path: _test\.go
       linters:
         - gomnd
-        - funlen
         - gocyclo
+        - errcheck
         - dupl
-        - lll
-run:
-  skip-dirs: []
-
-# golangci.com configuration
-# https://github.com/golangci/golangci/wiki/Configuration
-service:
-  golangci-lint-version: 1.27.x # use the fixed version to not introduce new linters unexpectedly
-  prepare:
-    - echo "here I can run custom commands, but no preparation needed for this repo"
-
-output:
-  # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
-  format: colored-line-number
-
-  # print lines of code with issue, default is true
-  print-issued-lines: true
-
-  # print linter name in the end of issue text, default is true
-  print-linter-name: true
-
-  # make issues output unique by line, default is true
-  uniq-by-line: true
-
-  # add a prefix to the output file references; default is no prefix
-  path-prefix: ""
+        - gosec
+        - funlen
+    # we exclude gocritic with text ptrToRefParam as this trick allows us to pass errors to metrics without an overhead
+    - path: pkg/metrics/timing.go
+      text: "ptrToRefParam: consider `errPtr' to be of non-pointer type"
+      linters:
+        - gocritic

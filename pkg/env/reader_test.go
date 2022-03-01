@@ -5,31 +5,50 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/breathbath/go_utils/v2/pkg/errs"
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
+func setDefaultEnvVars() error {
 	err := os.Setenv("SOME_ENV_STRING", "GoLangCode")
-	errs.FailOnError(err)
+	if err != nil {
+		return err
+	}
 
 	err = os.Setenv("SOME_ENV_INT", "123")
-	errs.FailOnError(err)
+	if err != nil {
+		return err
+	}
 
 	err = os.Setenv("SOME_ENV_FLOAT", "123.345")
-	errs.FailOnError(err)
+	if err != nil {
+		return err
+	}
 
 	err = os.Setenv("SOME_ENV_BOOL_TRUE", "true")
-	errs.FailOnError(err)
+	if err != nil {
+		return err
+	}
 
 	err = os.Setenv("SOME_ENV_BOOL_FALSE", "false")
-	errs.FailOnError(err)
+	if err != nil {
+		return err
+	}
 
 	err = os.Setenv("SOME_ENV_BOOL_EMPTY", "")
-	errs.FailOnError(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func TestSuite(t *testing.T) {
+	err := setDefaultEnvVars()
+	require.NoError(t, err)
+
 	defer func() {
 		errCont := errs.NewErrorContainer()
 		err := os.Unsetenv("SOME_ENV_STRING")

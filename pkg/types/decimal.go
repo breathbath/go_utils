@@ -40,7 +40,7 @@ func NewDecimalFromInt(input int64) Decimal {
 }
 
 func (d Decimal) String() string {
-	output := fmt.Sprintf("%v", d.dec.StringFixed(defaultDecimalLength))
+	output := d.dec.StringFixed(defaultDecimalLength)
 	output = strings.TrimRight(output, "0")
 	output = strings.TrimRight(output, ".")
 

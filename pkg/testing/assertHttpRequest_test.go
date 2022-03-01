@@ -2,7 +2,7 @@ package testing
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -21,7 +21,7 @@ func TestRequestEquality(t *testing.T) {
 			"Authorisation": []string{"Bearer 123"},
 			"Content Type":  []string{"application/json"},
 		},
-		Body:             ioutil.NopCloser(bytes.NewBufferString("Some body")),
+		Body:             io.NopCloser(bytes.NewBufferString("Some body")),
 		GetBody:          nil,
 		ContentLength:    0,
 		TransferEncoding: nil,

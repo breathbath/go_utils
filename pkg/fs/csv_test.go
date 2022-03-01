@@ -3,7 +3,6 @@ package fs
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"testing"
@@ -25,7 +24,7 @@ func TestReadNonExistingCsvFile(t *testing.T) {
 }
 
 func TestReadCsvFileWithBadPermissions(t *testing.T) {
-	err := ioutil.WriteFile("testFileBadPermission.csv", []byte(""), 0600)
+	err := os.WriteFile("testFileBadPermission.csv", []byte(""), 0600)
 	assert.NoError(t, err)
 
 	cmd := exec.Command("chmod", "000", "testFileBadPermission.csv")
@@ -50,7 +49,7 @@ func TestReadCsvFileWithBadPermissions(t *testing.T) {
 
 func TestReadExistingCsvFile(t *testing.T) {
 	csvFileRaw := []byte("col1,col2,col3\n1,2,3\n4,5,6\n7,8,9")
-	err := ioutil.WriteFile("testFile.csv", csvFileRaw, 0600)
+	err := os.WriteFile("testFile.csv", csvFileRaw, 0600)
 	assert.NoError(t, err)
 
 	allLines := map[int][]string{}
@@ -106,7 +105,7 @@ func TestReadFaultyCsvFile(t *testing.T) {
 func testWrongCsvFile(t *testing.T, data, expectedError string, lineError error, expectedColsCount int) {
 	t.Helper()
 
-	err := ioutil.WriteFile("testFaultyFile.csv", []byte(data), 0600)
+	err := os.WriteFile("testFaultyFile.csv", []byte(data), 0600)
 	assert.NoError(t, err)
 
 	allLines := map[int][]string{}

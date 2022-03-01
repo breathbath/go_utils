@@ -3,7 +3,7 @@ package rest
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -21,9 +21,13 @@ func TestSuccessResponses(t *testing.T) {
 func TestFailureResponses(t *testing.T) {
 	failedResponseCodes := []int{500, 400, 403, 404}
 	for _, respCode := range failedResponseCodes {
-		resp := http.Response{StatusCode: respCode, Status: fmt.Sprint(respCode), Body: ioutil.NopCloser(bytes.NewBufferString("Hello World"))}
+		resp := http.Response{StatusCode: respCode, Status: fmt.Sprint(respCode), Body: io.NopCloser(bytes.NewBufferString("Hello World"))}
 		actualError := ValidateResponse("someurl", &resp, []byte("Hello World"))
-		expectedErrText := fmt.Sprintf("Remote server under someurl responded with code: %d, body: %s, status: %d", respCode, "Hello World", respCode)
+		expectedErrText := fmt.Sprintf(
+			`Remote server under someurl responded with code: %d, body: "Hello World", status: %d`,
+			respCode,
+			respCode,
+		)
 		assert.EqualError(t, actualError, expectedErrText)
 	}
 }

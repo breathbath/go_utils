@@ -3,8 +3,7 @@ package options
 import (
 	"encoding/json"
 	"fmt"
-	io2 "io"
-	"io/ioutil"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -17,7 +16,7 @@ import (
 
 type ValuesProvider interface {
 	Read(name string) (val interface{}, found bool)
-	Dump(w io2.Writer) (err error)
+	Dump(w io.Writer) (err error)
 	ToKeyValues() map[string]interface{}
 }
 
@@ -63,7 +62,7 @@ func (mvp *MapValuesProvider) ToKeyValues() map[string]interface{} {
 	return conv.ConvertSyncMapToMap(mvp.parameters)
 }
 
-func (mvp *MapValuesProvider) Dump(w io2.Writer) (err error) {
+func (mvp *MapValuesProvider) Dump(w io.Writer) (err error) {
 	data := conv.ConvertSyncMapToMap(mvp.parameters)
 	jsonEncoder := json.NewEncoder(w)
 	err = jsonEncoder.Encode(data)
@@ -76,7 +75,7 @@ func (nvp *NullValuesProvider) Read(name string) (val interface{}, found bool) {
 	return
 }
 
-func (nvp *NullValuesProvider) Dump(w io2.Writer) (err error) {
+func (nvp *NullValuesProvider) Dump(w io.Writer) (err error) {
 	return
 }
 
@@ -90,7 +89,7 @@ func (evp *EnvValuesProvider) Read(name string) (val interface{}, found bool) {
 	return os.LookupEnv(name)
 }
 
-func (evp *EnvValuesProvider) Dump(w io2.Writer) (err error) {
+func (evp *EnvValuesProvider) Dump(w io.Writer) (err error) {
 	data := os.Environ()
 	jsonEncoder := json.NewEncoder(w)
 	err = jsonEncoder.Encode(data)
@@ -111,9 +110,9 @@ type JSONFileValuesProvider struct {
 	vals MapValuesProvider
 }
 
-func NewJSONValuesProvider(jsond io2.Reader) (jfvp *JSONFileValuesProvider, err error) {
+func NewJSONValuesProvider(jsond io.Reader) (jfvp *JSONFileValuesProvider, err error) {
 	var data []byte
-	data, err = ioutil.ReadAll(jsond)
+	data, err = io.ReadAll(jsond)
 	if err != nil {
 		return
 	}
@@ -163,7 +162,7 @@ func (jfvp *JSONFileValuesProvider) Read(name string) (val interface{}, found bo
 	return jfvp.vals.Read(name)
 }
 
-func (jfvp *JSONFileValuesProvider) Dump(w io2.Writer) (err error) {
+func (jfvp *JSONFileValuesProvider) Dump(w io.Writer) (err error) {
 	return jfvp.vals.Dump(w)
 }
 
@@ -202,7 +201,7 @@ func (vpc *ValuesProviderComposite) ToKeyValues() map[string]interface{} {
 	return res
 }
 
-func (vpc *ValuesProviderComposite) Dump(w io2.Writer) (err error) {
+func (vpc *ValuesProviderComposite) Dump(w io.Writer) (err error) {
 	kvs := vpc.ToKeyValues()
 	jsonEncoder := json.NewEncoder(w)
 	return jsonEncoder.Encode(kvs)

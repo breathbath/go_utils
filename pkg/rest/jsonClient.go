@@ -2,11 +2,9 @@ package rest
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -65,7 +63,6 @@ func (jc *JSONClient) CallAPI(ctx context.Context, requestContext *RequestContex
 	connectionTimeout := 30 * time.Second
 	transport := &http.Transport{
 		DisableKeepAlives:     true,
-		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		ResponseHeaderTimeout: connectionTimeout,
 	}
 
@@ -104,7 +101,7 @@ func (jc *JSONClient) CallAPI(ctx context.Context, requestContext *RequestContex
 		}
 	}()
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err == io.EOF {
 		return []byte{}, resp, fmt.Errorf("empty body in the response, status: %d", resp.StatusCode)
 	}
@@ -129,10 +126,11 @@ func (jc *JSONClient) Post(ctx context.Context, req *RequestContext) ([]byte, *h
 }
 
 func (jc *JSONClient) ScanToTarget(ctx context.Context, req *RequestContext, target interface{}) error {
-	body, _, err := jc.Get(ctx, req)
+	body, resp, err := jc.Get(ctx, req)
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	if err := json.Unmarshal(body, target); err != nil {
 		e := fmt.Errorf("cannot process response %s: %v", string(body), err)

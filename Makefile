@@ -14,7 +14,7 @@ help:
 	@echo
 
 test:
-	go test -race -v -p 1 ./...
+	go test -race ./...
 
 sca:
 	golangci-lint run

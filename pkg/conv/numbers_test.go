@@ -38,7 +38,7 @@ func TestExtractIntFromString(t *testing.T) {
 }
 
 func TestConvertFloatToLongStringNumber(t *testing.T) {
-	var flVal float64 = 2.123456789123456
+	var flVal = 2.123456789123456
 	actualOutput := ConvertFloatToLongStringNumber(flVal)
 	assert.Equal(t, "2.123456789123456", actualOutput)
 }

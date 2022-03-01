@@ -6,40 +6,45 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/stretchr/testify/assert"
 )
 
-var reqExample *http.Request
-var reqExampleWrong *http.Request
+func getReqExample(t *testing.T) *http.Request {
+	correctURL, err := url.Parse("http://ya.ru?someKey=someVal&someNumb=-123&time=2001-01-01T11-00-00")
+	require.NoError(t, err)
 
-func init() {
-	correctURL, _ := url.Parse("http://ya.ru?someKey=someVal&someNumb=-123&time=2001-01-01T11-00-00")
-	wrongURL, _ := url.Parse("http://ya.ru?time=2001-01-01")
-	reqExample = &http.Request{URL: correctURL}
-	reqExampleWrong = &http.Request{URL: wrongURL}
+	return &http.Request{URL: correctURL}
+}
+
+func getReqExampleWrong(t *testing.T) *http.Request {
+	wrongURL, err := url.Parse("http://ya.ru?time=2001-01-01")
+	require.NoError(t, err)
+	return &http.Request{URL: wrongURL}
 }
 
 func TestGetRequestValueString(t *testing.T) {
-	actualVal := GetRequestValueString(reqExample, "nonExistingParam", "someDefaultValue")
+	actualVal := GetRequestValueString(getReqExample(t), "nonExistingParam", "someDefaultValue")
 	assert.Equal(t, "someDefaultValue", actualVal)
 
-	actualVal = GetRequestValueString(reqExample, "someKey", "someDefaultValue")
+	actualVal = GetRequestValueString(getReqExample(t), "someKey", "someDefaultValue")
 	assert.Equal(t, "someVal", actualVal)
 }
 
 func TestGetRequestValueInt(t *testing.T) {
-	actualVal := GetRequestValueInt(reqExample, "nonExistingParam", 1)
+	actualVal := GetRequestValueInt(getReqExample(t), "nonExistingParam", 1)
 	assert.EqualValues(t, 1, actualVal)
 
-	actualVal = GetRequestValueInt(reqExample, "someNumb", 0)
+	actualVal = GetRequestValueInt(getReqExample(t), "someNumb", 0)
 	assert.EqualValues(t, -123, actualVal)
 
-	actualVal = GetRequestValueInt(reqExample, "someKey", -1)
+	actualVal = GetRequestValueInt(getReqExample(t), "someKey", -1)
 	assert.EqualValues(t, -1, actualVal)
 }
 
 func TestGetRequestValueTimeWithError(t *testing.T) {
-	actualTime, err := GetRequestValueTimeWithError(reqExample, "time")
+	actualTime, err := GetRequestValueTimeWithError(getReqExample(t), "time")
 	assert.NoError(t, err)
 
 	expectedTime, err := time.Parse("2006-01-02T15:04:05", "2001-01-01T11:00:00")
@@ -47,10 +52,10 @@ func TestGetRequestValueTimeWithError(t *testing.T) {
 
 	assert.Equal(t, expectedTime.UTC(), actualTime)
 
-	_, err = GetRequestValueTimeWithError(reqExampleWrong, "time")
+	_, err = GetRequestValueTimeWithError(getReqExampleWrong(t), "time")
 	assert.EqualError(t, err, `parsing time "2001-01-01" as "2006-01-02T15-04-05": cannot parse "" as "T"`)
 
-	_, err = GetRequestValueTimeWithError(reqExample, "lala")
+	_, err = GetRequestValueTimeWithError(getReqExample(t), "lala")
 	assert.EqualError(t, err, `no time value provided for key lala`)
 }
 
@@ -61,9 +66,9 @@ func TestGetRequestValueTimeWithDefaultValue(t *testing.T) {
 	expectedTime, err := time.Parse("2006-01-02T15:04:05", "2001-01-01T11:00:00")
 	assert.NoError(t, err)
 
-	actualTime := GetRequestValueTime(reqExample, "time", defaultValue)
+	actualTime := GetRequestValueTime(getReqExample(t), "time", defaultValue)
 	assert.Equal(t, expectedTime, actualTime)
 
-	actualTime = GetRequestValueTime(reqExampleWrong, "time", defaultValue)
+	actualTime = GetRequestValueTime(getReqExampleWrong(t), "time", defaultValue)
 	assert.Equal(t, defaultValue, actualTime)
 }

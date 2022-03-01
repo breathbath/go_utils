@@ -2,7 +2,7 @@ package testing
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -66,10 +66,10 @@ func AssertRequestEqual(t *testing.T, re *RequestExpectation, actualRequest *htt
 	}
 
 	if re.ExpectedBody.IsActive {
-		bodyBytes, err := ioutil.ReadAll(actualRequest.Body)
+		bodyBytes, err := io.ReadAll(actualRequest.Body)
 		assert.NoError(t, err)
 		if err == nil {
-			actualRequest.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			actualRequest.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			assert.Equal(t, re.ExpectedBody.Value, string(bodyBytes))
 		}
 	}

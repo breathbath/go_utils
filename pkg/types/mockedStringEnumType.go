@@ -15,15 +15,11 @@ const (
 	MR
 )
 
-var SalutationMap map[int]string
-
-func init() {
-	SalutationMap = map[int]string{
-		int(MS):  "Miss",
-		int(MRS): "Missus",
-		int(DR):  "Doctor",
-		int(MR):  "Mister",
-	}
+var SalutationMap = map[int]string{
+	int(MS):  "Miss",
+	int(MRS): "Missus",
+	int(DR):  "Doctor",
+	int(MR):  "Mister",
 }
 
 func (s Salutation) MarshalJSON() ([]byte, error) {

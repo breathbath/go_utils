@@ -6,11 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var exampleStringNumber StringNumber
-
-func init() {
-	exampleStringNumber = StringNumber{"123"}
-}
+var exampleStringNumber = StringNumber{"123"}
 
 func TestStringNumberMarshalJSON(t *testing.T) {
 	byteStringNumber, err := exampleStringNumber.MarshalJSON()
