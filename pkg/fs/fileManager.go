@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	io2 "github.com/breathbath/go_utils/v2/pkg/io"
+	io2 "github.com/breathbath/go_utils/v3/pkg/io"
 
-	"github.com/breathbath/go_utils/v2/pkg/errs"
+	"github.com/breathbath/go_utils/v3/pkg/errs"
 )
 
 const DS = string(os.PathSeparator)

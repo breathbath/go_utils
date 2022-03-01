@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	io2 "github.com/breathbath/go_utils/v2/pkg/io"
+	io2 "github.com/breathbath/go_utils/v3/pkg/io"
 )
 
 type RequestContext struct {

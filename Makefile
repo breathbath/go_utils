@@ -16,7 +16,7 @@ help:
 test:
 	go test -race ./...
 
-sca:
+lint:
 	golangci-lint run
 
 fmt:

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/breathbath/go_utils/v2/pkg/errs"
+	"github.com/breathbath/go_utils/v3/pkg/errs"
 	"github.com/stretchr/testify/assert"
 )
 

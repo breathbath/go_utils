@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/breathbath/go_utils/v2/pkg/math"
+	"github.com/breathbath/go_utils/v3/pkg/math"
 	"github.com/stretchr/testify/assert"
 )
 

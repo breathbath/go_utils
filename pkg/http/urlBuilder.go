@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/breathbath/go_utils/v2/pkg/env"
+	"github.com/breathbath/go_utils/v3/pkg/env"
 )
 
 func BuildURL(host, path, rawQuery string) (string, error) {

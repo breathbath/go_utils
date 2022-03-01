@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	io2 "github.com/breathbath/go_utils/v2/pkg/io"
+	io2 "github.com/breathbath/go_utils/v3/pkg/io"
 )
 
 func ReadCsvFile(filePath string, lineParser func(int, []string) error, lineSep rune, leastColumnsCount int) (err error) {

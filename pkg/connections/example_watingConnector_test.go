@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/breathbath/go_utils/v2/pkg/errs"
+	"github.com/breathbath/go_utils/v3/pkg/errs"
 )
 
 // This example tries to connect to a non immediately available resource outputting attempts info

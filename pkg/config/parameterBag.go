@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/breathbath/go_utils/v2/pkg/conv"
-	errs2 "github.com/breathbath/go_utils/v2/pkg/errs"
+	"github.com/breathbath/go_utils/v3/pkg/conv"
+	errs2 "github.com/breathbath/go_utils/v3/pkg/errs"
 )
 
 type ValuesProvider interface {

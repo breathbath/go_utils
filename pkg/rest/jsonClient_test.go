@@ -9,10 +9,10 @@ import (
 	"strings"
 	"testing"
 
-	io2 "github.com/breathbath/go_utils/v2/pkg/io"
+	io2 "github.com/breathbath/go_utils/v3/pkg/io"
 	"github.com/stretchr/testify/require"
 
-	http2 "github.com/breathbath/go_utils/v2/pkg/http"
+	http2 "github.com/breathbath/go_utils/v3/pkg/http"
 	"github.com/stretchr/testify/assert"
 )
 

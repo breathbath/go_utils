@@ -3,7 +3,7 @@ package types
 import (
 	"database/sql/driver"
 
-	"github.com/breathbath/go_utils/v2/pkg/conv"
+	"github.com/breathbath/go_utils/v3/pkg/conv"
 )
 
 type Salutation int
